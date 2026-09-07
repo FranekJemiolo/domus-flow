@@ -30,6 +30,7 @@ architecture that enables deployment as both a full-stack web app and a fully of
 ## Data Flow
 
 ### Tenant Filing a Ticket
+
 1. Tenant opens "New Repair" form
 2. Selects photos → `browser-image-compression` reduces to <0.5MB/image
 3. Compressed Base64 strings saved to Dexie.js (demo) or uploaded to API (prod)
@@ -37,11 +38,13 @@ architecture that enables deployment as both a full-stack web app and a fully of
 5. Ticket appears in Landlord's Kanban board
 
 ### Landlord Managing a Ticket
+
 1. Drags ticket card to new column (status update)
 2. Can override urgency, set manual text ETA, assign contractor
 3. Clicks "Acknowledge Final Cost" → `costAcknowledged: true`, ticket locked
 
 ### Dual-Channel Chat
+
 1. Landlord has two isolated message threads per property
 2. Thread 1: Tenant ↔ Landlord (negotiate repairs)
 3. Thread 2: Landlord ↔ Contractor (coordinate work)
@@ -91,5 +94,5 @@ domus-flow/
 └── apps/frontend/       ← React app (uses shared types)
 ```
 
-The `packages/shared` package is the single source of truth for all TypeScript types,
-ensuring the frontend's Dexie schema exactly mirrors the backend's Prisma schema.
+The `packages/shared` package is the single source of truth for all TypeScript types, ensuring the
+frontend's Dexie schema exactly mirrors the backend's Prisma schema.

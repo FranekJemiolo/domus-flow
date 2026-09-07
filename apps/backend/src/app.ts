@@ -10,16 +10,16 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 
-// Route imports (added in Milestone 2)
-// import { authRouter } from './routes/auth';
-// import { propertiesRouter } from './routes/properties';
-// import { ticketsRouter } from './routes/tickets';
-// import { messagesRouter } from './routes/messages';
-// import { dashboardRouter } from './routes/dashboard';
+// Routes
+import { authRouter } from './routes/auth';
+import { propertiesRouter } from './routes/properties';
+import { ticketsRouter } from './routes/tickets';
+import { messagesRouter } from './routes/messages';
+import { dashboardRouter } from './routes/dashboard';
+import { usersRouter } from './routes/users';
 
-// Middleware imports
-// import { errorHandler } from './middleware/errorHandler';
-// import { notFound } from './middleware/notFound';
+// Middleware
+import { notFound, errorHandler } from './middleware/errorHandler';
 
 export function createApp() {
   const app = express();
@@ -50,16 +50,17 @@ export function createApp() {
     });
   });
 
-  // ─── API Routes (Milestone 2) ────────────────────────────────────────────
-  // app.use('/api/auth', authRouter);
-  // app.use('/api/properties', propertiesRouter);
-  // app.use('/api/tickets', ticketsRouter);
-  // app.use('/api/messages', messagesRouter);
-  // app.use('/api/dashboard', dashboardRouter);
+  // ─── API Routes ──────────────────────────────────────────────────────────
+  app.use('/api/auth', authRouter);
+  app.use('/api/properties', propertiesRouter);
+  app.use('/api/tickets', ticketsRouter);
+  app.use('/api/messages', messagesRouter);
+  app.use('/api/dashboard', dashboardRouter);
+  app.use('/api/users', usersRouter);
 
-  // ─── Error Handling (Milestone 2) ────────────────────────────────────────
-  // app.use(notFound);
-  // app.use(errorHandler);
+  // ─── Error Handling ──────────────────────────────────────────────────────
+  app.use(notFound);
+  app.use(errorHandler);
 
   return app;
 }

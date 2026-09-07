@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  LANDLORD
+  TENANT
+  CONTRACTOR
+}
+
+enum TicketUrgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketStatus {
+  REPORTED
+  IN_PROGRESS
+  SCHEDULED
+  RESOLVED
+}
+
+enum MessageThreadType {
+  TENANT_LANDLORD
+  LANDLORD_CONTRACTOR
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id               String   @id @default(uuid())
+  role             UserRole
+  name             String
+  email            String   @unique
+  passwordHash     String
+  inviteCode       String   @unique
+  linkedPropertyId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  ownedProperties  Property[]  @relation("LandlordProperties")
+  linkedProperty   Property?   @relation("PropertyTenants", fields: [linkedPropertyId], references: [id])
+  tenantTickets    Ticket[]    @relation("TicketTenant")
+  contractorTickets Ticket[]   @relation("TicketContractor")
+  sentMessages     Message[]   @relation("MessageSender")
+
+  @@map("users")
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  address     String
+  unitNumber  String
+  landlordId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  landlord    User      @relation("LandlordProperties", fields: [landlordId], references: [id], onDelete: Cascade)
+  tenants     User[]    @relation("PropertyTenants")
+  tickets     Ticket[]
+
+  @@map("properties")
+}
+
+model Ticket {
+  id               String        @id @default(uuid())
+  propertyId       String
+  tenantId         String
+  contractorId     String?
+  title            String
+  description      String
+  photoUrls        String[]      @default([])
+  urgency          TicketUrgency @default(MEDIUM)
+  status           TicketStatus  @default(REPORTED)
+  eta              String?
+  costAcknowledged Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenant      User      @relation("TicketTenant", fields: [tenantId], references: [id])
+  contractor  User?     @relation("TicketContractor", fields: [contractorId], references: [id])
+  messages    Message[] @relation("MessageTicket")
+
+  @@map("tickets")
+}
+
+model Message {
+  id             String            @id @default(uuid())
+  threadType     MessageThreadType
+  senderId       String
+  receiverId     String
+  content        String
+  timestamp      DateTime          @default(now())
+  linkedTicketId String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // Relations
+  sender        User    @relation("MessageSender", fields: [senderId], references: [id])
+  linkedTicket  Ticket? @relation("MessageTicket", fields: [linkedTicketId], references: [id])
+
+  @@map("messages")
+}

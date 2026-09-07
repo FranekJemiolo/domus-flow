@@ -12,18 +12,20 @@
 
 ## 🚀 Live Demo
 
-**Try DomusFlow without any setup:** → [https://FranekJemiolo.github.io/domus-flow/](https://FranekJemiolo.github.io/domus-flow/)
+**Try DomusFlow without any setup:** →
+[https://FranekJemiolo.github.io/domus-flow/](https://FranekJemiolo.github.io/domus-flow/)
 
-The demo runs entirely in your browser using IndexedDB (via Dexie.js). No backend, no account needed.
+The demo runs entirely in your browser using IndexedDB (via Dexie.js). No backend, no account
+needed.
 
 ### Demo Login Codes
 
-| Role       | Invite Code        | Description                       |
-| ---------- | ------------------ | --------------------------------- |
-| Landlord   | `LANDLORD-DEMO`    | Full property management access   |
-| Tenant     | `UNIT4B-2026`      | Unit 4B tenant — can file tickets |
-| Tenant     | `UNIT2A-2026`      | Unit 2A tenant                    |
-| Contractor | `CONTRACTOR-01`    | View assigned repair tickets      |
+| Role       | Invite Code     | Description                       |
+| ---------- | --------------- | --------------------------------- |
+| Landlord   | `LANDLORD-DEMO` | Full property management access   |
+| Tenant     | `UNIT4B-2026`   | Unit 4B tenant — can file tickets |
+| Tenant     | `UNIT2A-2026`   | Unit 2A tenant                    |
+| Contractor | `CONTRACTOR-01` | View assigned repair tickets      |
 
 ---
 
@@ -78,30 +80,30 @@ VITE_DEMO_MODE=true   → All API calls intercepted → Dexie.js (IndexedDB) in 
 VITE_DEMO_MODE=false  → All API calls go to → Node/Express → Prisma → PostgreSQL
 ```
 
-This enables a **fully offline, zero-dependency demo** deployed to GitHub Pages while sharing
-100% of the UI code with the production app.
+This enables a **fully offline, zero-dependency demo** deployed to GitHub Pages while sharing 100%
+of the UI code with the production app.
 
 ---
 
 ## 🛠 Technology Stack
 
-| Layer        | Technology                                         |
-| ------------ | -------------------------------------------------- |
-| Frontend     | React 18, TypeScript, Vite, Tailwind CSS           |
-| Routing      | react-router-dom v6                                |
-| Demo Storage | Dexie.js (IndexedDB wrapper)                       |
-| API Client   | Axios with interceptors                            |
-| Backend      | Node.js, Express, TypeScript                       |
-| Database     | PostgreSQL 16, Prisma ORM                          |
-| Auth         | JWT (jsonwebtoken + bcryptjs)                      |
-| Image Handling | browser-image-compression (client-side)          |
-| CSV          | PapaParse (import), file-saver (export)            |
-| Mobile       | Capacitor.js (iOS + Android)                       |
-| PWA          | vite-plugin-pwa + Workbox                          |
-| Testing FE   | Vitest + React Testing Library                     |
-| Testing BE   | Jest + Supertest (against real PostgreSQL)         |
-| CI/CD        | GitHub Actions                                     |
-| DB GUI       | Adminer (via Docker)                               |
+| Layer          | Technology                                 |
+| -------------- | ------------------------------------------ |
+| Frontend       | React 18, TypeScript, Vite, Tailwind CSS   |
+| Routing        | react-router-dom v6                        |
+| Demo Storage   | Dexie.js (IndexedDB wrapper)               |
+| API Client     | Axios with interceptors                    |
+| Backend        | Node.js, Express, TypeScript               |
+| Database       | PostgreSQL 16, Prisma ORM                  |
+| Auth           | JWT (jsonwebtoken + bcryptjs)              |
+| Image Handling | browser-image-compression (client-side)    |
+| CSV            | PapaParse (import), file-saver (export)    |
+| Mobile         | Capacitor.js (iOS + Android)               |
+| PWA            | vite-plugin-pwa + Workbox                  |
+| Testing FE     | Vitest + React Testing Library             |
+| Testing BE     | Jest + Supertest (against real PostgreSQL) |
+| CI/CD          | GitHub Actions                             |
+| DB GUI         | Adminer (via Docker)                       |
 
 ---
 
@@ -258,11 +260,11 @@ npm run docker:down     # Stop all services
 npm run docker:reset    # Wipe volumes and restart fresh
 ```
 
-| Service       | Port   | URL                          |
-| ------------- | ------ | ---------------------------- |
-| PostgreSQL    | 5432   | postgresql://localhost:5432  |
-| PostgreSQL Test | 5433 | postgresql://localhost:5433  |
-| Adminer       | 8080   | http://localhost:8080        |
+| Service         | Port | URL                         |
+| --------------- | ---- | --------------------------- |
+| PostgreSQL      | 5432 | postgresql://localhost:5432 |
+| PostgreSQL Test | 5433 | postgresql://localhost:5433 |
+| Adminer         | 8080 | http://localhost:8080       |
 
 ---
 
@@ -280,15 +282,15 @@ schema. Key models:
 
 ## 📋 Development Milestones
 
-| # | Milestone                          | Status |
-|---|------------------------------------|--------|
-| 1 | Monorepo Setup & CI/CD             | ✅ Complete |
-| 2 | Backend & Database Layer           | 🔄 In Progress |
-| 3 | Frontend Data Service & Demo Mode  | ⏳ Pending |
-| 4 | Core UI & Routing                  | ⏳ Pending |
-| 5 | Ticket Lifecycle & Media           | ⏳ Pending |
-| 6 | Dual-Channel Chat System           | ⏳ Pending |
-| 7 | PWA, Native Packaging & Screenshots | ⏳ Pending |
+| #   | Milestone                           | Status         |
+| --- | ----------------------------------- | -------------- |
+| 1   | Monorepo Setup & CI/CD              | ✅ Complete    |
+| 2   | Backend & Database Layer            | 🔄 In Progress |
+| 3   | Frontend Data Service & Demo Mode   | ⏳ Pending     |
+| 4   | Core UI & Routing                   | ⏳ Pending     |
+| 5   | Ticket Lifecycle & Media            | ⏳ Pending     |
+| 6   | Dual-Channel Chat System            | ⏳ Pending     |
+| 7   | PWA, Native Packaging & Screenshots | ⏳ Pending     |
 
 ---
 

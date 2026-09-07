@@ -16,9 +16,9 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@domus-flow/shared": ["../../packages/shared/src/index.ts"]
+      "@domus-flow/shared": ["../../packages/shared/dist/index.d.ts"]
     }
   },
-  "include": ["src", "prisma/seed.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
 }
