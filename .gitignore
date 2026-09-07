@@ -57,6 +57,8 @@ test-results/
 playwright-report/
 *.png
 !docs/screenshots/*.png
+!apps/frontend/public/*.png
+!apps/frontend/public/*.ico
 
 # Misc
 *.tgz

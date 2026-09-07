@@ -14,7 +14,10 @@
     "test": "vitest run --coverage --passWithNoTests",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "cap:sync": "cap sync",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",

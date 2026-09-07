@@ -1,17 +1,31 @@
-# Screenshots
+# DomusFlow Interface Showcase
 
-Application screenshots are added during Milestone 7 after the full UI is implemented.
+Visual previews and screenshot gallery for the DomusFlow maintenance platform.
 
-## Planned Screenshots
+---
 
-- `dashboard-landlord.png` — Landlord dashboard with property overview and stats
-- `dashboard-tenant.png` — Tenant dashboard showing their unit and tickets
-- `kanban-board.png` — Repair ticket Kanban board (Reported → In Progress → Scheduled → Resolved)
-- `ticket-creation.png` — Tenant ticket creation form with photo upload
-- `ticket-detail.png` — Ticket detail view with ETA, contractor assignment, and cost acknowledgment
-- `chat-tenant.png` — Tenant-Landlord chat thread
-- `chat-contractor.png` — Landlord-Contractor chat thread
-- `chat-ticket-card.png` — Clickable Ticket Card shared into a chat thread
-- `login.png` — Role selection and invite code login screen
-- `mobile-ios.png` — iOS native app (Capacitor)
-- `mobile-android.png` — Android native app (Capacitor)
+### Landlord Executive Dashboard
+
+![Landlord Dashboard](./dashboard-landlord.png) _Real-time pulse overview, property portfolio KPIs,
+active maintenance tickets, and critical emergency banner._
+
+---
+
+### Work Orders & Kanban Board
+
+![Kanban Board](./kanban-board.png) _4-column maintenance pipeline (Reported, Scheduled, In
+Progress, Resolved) with 1-click status transitions and photo evidence counts._
+
+---
+
+### Direct Communications (Contractor Channel)
+
+![Contractor Chat](./chat-contractor.png) _Isolated Landlord ↔ Contractor chat featuring interactive
+linked ticket references and one-tap canned status replies._
+
+---
+
+### Mobile PWA & Capacitor View
+
+![Mobile iOS View](./mobile-ios.png) _Responsive mobile layout with touch-friendly navigation, quick
+status updates, and camera photo capture._

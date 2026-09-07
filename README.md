@@ -280,24 +280,50 @@ schema. Key models:
 
 ---
 
+---
+
+## 🖼 Application Showcase
+
+### Landlord Portfolio & Maintenance Pulse
+
+![Landlord Dashboard](docs/screenshots/dashboard-landlord.png)
+
+### Work Orders Kanban Pipeline
+
+![Kanban Board](docs/screenshots/kanban-board.png)
+
+### Direct Maintenance Communications (Contractor Channel)
+
+![Contractor Chat](docs/screenshots/chat-contractor.png)
+
+### Mobile Application View (iOS / Android PWA)
+
+<p align="center">
+  <img src="docs/screenshots/mobile-ios.png" width="360" alt="Mobile iOS View" />
+</p>
+
+---
+
 ## 📋 Development Milestones
 
-| #   | Milestone                           | Status         |
-| --- | ----------------------------------- | -------------- |
-| 1   | Monorepo Setup & CI/CD              | ✅ Complete    |
-| 2   | Backend & Database Layer            | 🔄 In Progress |
-| 3   | Frontend Data Service & Demo Mode   | ⏳ Pending     |
-| 4   | Core UI & Routing                   | ⏳ Pending     |
-| 5   | Ticket Lifecycle & Media            | ⏳ Pending     |
-| 6   | Dual-Channel Chat System            | ⏳ Pending     |
-| 7   | PWA, Native Packaging & Screenshots | ⏳ Pending     |
+| #   | Milestone                             | Status          | Description                                                                   |
+| --- | ------------------------------------- | --------------- | ----------------------------------------------------------------------------- |
+| 1   | **Monorepo Setup & CI/CD**            | ✅ **Complete** | npm workspaces, GitHub Actions, Docker PostgreSQL, configs                    |
+| 2   | **Backend & Database Layer**          | ✅ **Complete** | Prisma models, Express REST API, 46 integration tests passing                 |
+| 3   | **Frontend Data Service & Demo Mode** | ✅ **Complete** | Dexie.js offline DB, Axios interceptors, CSV import/export, 18 tests          |
+| 4   | **Core UI, Layouts & Routing**        | ✅ **Complete** | Tailwind CSS dark design, 1-click persona switching, mobile bottom nav        |
+| 5   | **Ticket Lifecycle & Media**          | ✅ **Complete** | Image compression, dropzone, Kanban status transitions, ETA & details modal   |
+| 6   | **Dual-Channel Chat System**          | ✅ **Complete** | Isolated Landlord-Tenant / Landlord-Contractor channels & linked ticket cards |
+| 7   | **PWA, Native Packaging & Docs**      | ✅ **Complete** | VitePWA manifest & icons, Capacitor iOS/Android config, full showcase docs    |
 
 ---
 
 ## 📁 Documentation
 
-- [`docs/architecture/`](docs/architecture/) — System design documents
-- [`docs/screenshots/`](docs/screenshots/) — Application screenshots (added in Milestone 7)
+- [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) — Comprehensive system
+  architecture & data flow
+- [`docs/screenshots/README.md`](docs/screenshots/README.md) — High-resolution interface showcase
+  gallery
 
 ---
 
