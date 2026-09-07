@@ -1,0 +1,54 @@
+{
+  "name": "domus-flow",
+  "version": "1.0.0",
+  "description": "DomusFlow - Maintenance Management Platform for Landlords, Tenants & Contractors",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev:frontend": "npm --workspace apps/frontend run dev",
+    "dev:backend": "npm --workspace apps/backend run dev",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:shared": "npm --workspace packages/shared run build",
+    "build:frontend": "npm --workspace apps/frontend run build",
+    "build:backend": "npm --workspace apps/backend run build",
+    "build:demo": "npm --workspace apps/frontend run build:demo",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:frontend": "npm --workspace apps/frontend run test",
+    "test:backend": "npm --workspace apps/backend run test",
+    "lint": "npm run lint:frontend && npm run lint:backend && npm run lint:shared",
+    "lint:frontend": "npm --workspace apps/frontend run lint",
+    "lint:backend": "npm --workspace apps/backend run lint",
+    "lint:shared": "npm --workspace packages/shared run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
+    "type-check": "npm run type-check:frontend && npm run type-check:backend && npm run type-check:shared",
+    "type-check:frontend": "npm --workspace apps/frontend run type-check",
+    "type-check:backend": "npm --workspace apps/backend run type-check",
+    "type-check:shared": "npm --workspace packages/shared run type-check",
+    "ci:lint": "npm run lint && npm run format:check",
+    "ci:type-check": "npm run type-check",
+    "ci:build": "npm run build",
+    "ci:test": "npm run test",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:reset": "docker-compose down -v && docker-compose up -d",
+    "db:migrate": "npm --workspace apps/backend run db:migrate",
+    "db:seed": "npm --workspace apps/backend run db:seed",
+    "db:reset": "npm --workspace apps/backend run db:reset"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.3.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
