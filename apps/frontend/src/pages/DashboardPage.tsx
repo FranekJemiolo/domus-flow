@@ -24,6 +24,7 @@ import { UrgencyBadge, StatusBadge } from '../components/common/Badge';
 export const DashboardPage: React.FC = () => {
   const [stats, setStats] = useState<LandlordDashboardStats | null>(null);
   const [recentTickets, setRecentTickets] = useState<Ticket[]>([]);
+  const [allTickets, setAllTickets] = useState<Ticket[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
@@ -39,6 +40,7 @@ export const DashboardPage: React.FC = () => {
           propertyService.getAll(),
         ]);
         setStats(statsData);
+        setAllTickets(ticketsData);
         setRecentTickets(ticketsData.slice(0, 5));
         setProperties(propsData);
       } catch (err) {
@@ -190,6 +192,70 @@ export const DashboardPage: React.FC = () => {
           <div className="mt-1 text-[11px] text-slate-400">Emergencies flagged</div>
         </div>
       </div>
+
+      {/* ─── Maintenance Pipeline Distribution ───────────────────────────────── */}
+      {allTickets.length > 0 && (
+        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                <span>📊</span>
+                <span>Maintenance Pipeline Distribution</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Live workflow progression across all maintenance requests
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs flex-wrap">
+              <span className="flex items-center gap-1.5 text-indigo-400">
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                Reported ({allTickets.filter((t) => t.status === TicketStatus.REPORTED).length})
+              </span>
+              <span className="flex items-center gap-1.5 text-sky-400">
+                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                Scheduled ({allTickets.filter((t) => t.status === TicketStatus.SCHEDULED).length})
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-400">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                In Progress (
+                {allTickets.filter((t) => t.status === TicketStatus.IN_PROGRESS).length})
+              </span>
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                Resolved ({allTickets.filter((t) => t.status === TicketStatus.RESOLVED).length})
+              </span>
+            </div>
+          </div>
+
+          {/* Visual Multi-Segment Pipeline Bar */}
+          <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800">
+            <div
+              style={{
+                width: `${(allTickets.filter((t) => t.status === TicketStatus.REPORTED).length / allTickets.length) * 100}%`,
+              }}
+              className="bg-indigo-500 transition-all duration-500"
+            />
+            <div
+              style={{
+                width: `${(allTickets.filter((t) => t.status === TicketStatus.SCHEDULED).length / allTickets.length) * 100}%`,
+              }}
+              className="bg-sky-500 transition-all duration-500"
+            />
+            <div
+              style={{
+                width: `${(allTickets.filter((t) => t.status === TicketStatus.IN_PROGRESS).length / allTickets.length) * 100}%`,
+              }}
+              className="bg-amber-500 transition-all duration-500"
+            />
+            <div
+              style={{
+                width: `${(allTickets.filter((t) => t.status === TicketStatus.RESOLVED).length / allTickets.length) * 100}%`,
+              }}
+              className="bg-emerald-500 transition-all duration-500"
+            />
+          </div>
+        </div>
+      )}
 
       {/* ─── Recent Tickets & Properties Snapshot ────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

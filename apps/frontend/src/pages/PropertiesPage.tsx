@@ -31,6 +31,10 @@ export const PropertiesPage: React.FC = () => {
   const [csvError, setCsvError] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
+  // Tenant Invite Modal State
+  const [inviteProperty, setInviteProperty] = useState<Property | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const loadData = async () => {
     setIsLoading(true);
     try {
@@ -204,26 +208,37 @@ export const PropertiesPage: React.FC = () => {
                   </h2>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/80">
-                  <div className="text-[11px] font-medium text-slate-400 mb-1.5">
-                    Residents ({propertyTenants.length}):
-                  </div>
-                  {propertyTenants.length === 0 ? (
-                    <span className="text-xs text-slate-500 italic">
-                      Vacant / No linked tenants
-                    </span>
-                  ) : (
-                    <div className="flex flex-wrap gap-1.5">
-                      {propertyTenants.map((t) => (
-                        <span
-                          key={t.id}
-                          className="px-2 py-0.5 rounded-md text-[11px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
-                        >
-                          {t.name}
-                        </span>
-                      ))}
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <div>
+                    <div className="text-[11px] font-medium text-slate-400 mb-1">
+                      Residents ({propertyTenants.length}):
                     </div>
-                  )}
+                    {propertyTenants.length === 0 ? (
+                      <span className="text-xs text-slate-500 italic">
+                        Vacant / No linked tenants
+                      </span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {propertyTenants.map((t) => (
+                          <span
+                            key={t.id}
+                            className="px-2 py-0.5 rounded-md text-[11px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
+                          >
+                            {t.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setInviteProperty(property)}
+                    className="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px] font-semibold border border-indigo-500/30 transition-colors shrink-0"
+                    title="Generate direct onboarding link for tenant"
+                  >
+                    🔑 Invite
+                  </button>
                 </div>
               </div>
             );
@@ -362,6 +377,73 @@ export const PropertiesPage: React.FC = () => {
             </button>
           </div>
         </div>
+      </Modal>
+
+      {/* ─── Tenant Invite Link Modal ────────────────────────────────────────── */}
+      <Modal
+        isOpen={Boolean(inviteProperty)}
+        onClose={() => setInviteProperty(null)}
+        title="Tenant Onboarding & Invite Link"
+      >
+        {inviteProperty &&
+          (() => {
+            const tenant = tenants.find((t) => t.linkedPropertyId === inviteProperty.id);
+            const inviteCode =
+              tenant?.inviteCode || `UNIT-${inviteProperty.unitNumber || 'A'}-2026`;
+            const inviteUrl = `${window.location.origin}${window.location.pathname}#/login?invite=${inviteCode}`;
+
+            return (
+              <div className="space-y-4 text-xs">
+                <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl">
+                  <div className="font-semibold text-slate-200">{inviteProperty.address}</div>
+                  <div className="text-slate-400">Unit: {inviteProperty.unitNumber || 'Main'}</div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    Tenant Invite Code
+                  </label>
+                  <div className="font-mono text-sm p-2.5 bg-slate-950 border border-indigo-500/40 rounded-xl text-indigo-300 font-bold flex justify-between items-center">
+                    <span>{inviteCode}</span>
+                    <span className="text-[10px] text-slate-500 font-sans">1-click access</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">
+                    Direct Onboarding Link
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={inviteUrl}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-300 font-mono text-[11px]"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-between items-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(inviteUrl);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1.5 transition-colors"
+                  >
+                    <span>{copiedLink ? '✓ Copied to Clipboard!' : '📋 Copy Direct Link'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setInviteProperty(null)}
+                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
       </Modal>
     </div>
   );
