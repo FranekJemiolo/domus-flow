@@ -50,10 +50,10 @@ jobs:
         run: npm run build:shared
 
       - name: Generate Prisma client
-        run: npm --workspace apps/backend run db:generate || echo "Skipping: Prisma schema not yet defined"
+        run: npm --workspace apps/backend run db:generate || echo 'Prisma schema not found - will be added in Milestone 2'
 
       - name: Run Prisma migrations on test DB
-        run: npm --workspace apps/backend run db:migrate:test || echo "Skipping: No migrations yet"
+        run: npm --workspace apps/backend run db:migrate:test || echo 'No migrations yet - will be added in Milestone 2'
 
       - name: Run backend integration tests
         run: npm run test:backend
