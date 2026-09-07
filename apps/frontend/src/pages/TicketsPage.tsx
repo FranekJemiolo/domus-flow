@@ -1,6 +1,7 @@
 /**
  * Tickets & Work Orders Management Page
- * Displays maintenance requests in Kanban Board or List view, with role-based actions
+ * Displays maintenance requests in Kanban Board or List view, with role-based actions,
+ * photo attachments, ETA tracking, and status transitions.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -10,6 +11,9 @@ import { ticketService, propertyService, userService } from '../services/dataSer
 import { Ticket, TicketStatus, TicketUrgency, Property, User, UserRole } from '@domus-flow/shared';
 import { UrgencyBadge, StatusBadge } from '../components/common/Badge';
 import { Modal } from '../components/common/Modal';
+import { PhotoUploadDropzone } from '../components/tickets/PhotoUploadDropzone';
+import { TicketDetailModal } from '../components/tickets/TicketDetailModal';
+import { sendBrowserNotification } from '../utils/notifications';
 
 export const TicketsPage: React.FC = () => {
   const { role } = useAuth();
@@ -19,19 +23,23 @@ export const TicketsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [isLoading, setIsLoading] = useState(true);
 
-  // New Ticket Modal State
-  const [searchParams, setSearchParams] = useSearchParams();
+  // Filters
+  const [urgencyFilter, setUrgencyFilter] = useState<string>('ALL');
+  const [propertyFilter, setPropertyFilter] = useState<string>('ALL');
+  const [searchFilter, setSearchFilter] = useState<string>('');
+
+  // New Ticket Form State
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newPropertyId, setNewPropertyId] = useState('');
   const [newUrgency, setNewUrgency] = useState<TicketUrgency>(TicketUrgency.MEDIUM);
+  const [newPhotos, setNewPhotos] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
 
-  // Detail / Update Modal State
+  // Detail / Action Modal State
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
@@ -69,14 +77,23 @@ export const TicketsPage: React.FC = () => {
     if (!newTitle.trim() || !newDescription.trim() || !newPropertyId) return;
     setIsCreating(true);
     try {
-      await ticketService.create({
+      const created = await ticketService.create({
         propertyId: newPropertyId,
         title: newTitle.trim(),
         description: newDescription.trim(),
         urgency: newUrgency,
+        photoUrls: newPhotos,
       });
+
+      if (newUrgency === TicketUrgency.CRITICAL) {
+        sendBrowserNotification('Critical Maintenance Reported!', {
+          body: `Urgent ticket: "${created.title}" requires immediate attention.`,
+        });
+      }
+
       setNewTitle('');
       setNewDescription('');
+      setNewPhotos([]);
       setIsNewModalOpen(false);
       await loadData();
     } catch (err) {
@@ -87,32 +104,25 @@ export const TicketsPage: React.FC = () => {
   };
 
   const handleUpdateStatus = async (ticketId: string, status: TicketStatus) => {
-    setUpdatingStatus(true);
     try {
-      await ticketService.update(ticketId, { status });
+      const updated = await ticketService.update(ticketId, { status });
       if (selectedTicket && selectedTicket.id === ticketId) {
-        setSelectedTicket({ ...selectedTicket, status });
+        setSelectedTicket(updated);
       }
       await loadData();
     } catch (err) {
       console.error('Failed to update status', err);
-    } finally {
-      setUpdatingStatus(false);
     }
   };
 
   const handleAssignContractor = async (ticketId: string, contractorId: string) => {
     try {
-      await ticketService.update(ticketId, {
+      const updated = await ticketService.update(ticketId, {
         contractorId: contractorId || null,
         status: TicketStatus.SCHEDULED,
       });
       if (selectedTicket && selectedTicket.id === ticketId) {
-        setSelectedTicket({
-          ...selectedTicket,
-          contractorId: contractorId || null,
-          status: TicketStatus.SCHEDULED,
-        });
+        setSelectedTicket(updated);
       }
       await loadData();
     } catch (err) {
@@ -120,12 +130,57 @@ export const TicketsPage: React.FC = () => {
     }
   };
 
+  const handleUpdateDetails = async (
+    ticketId: string,
+    updates: { eta?: string | null; costAcknowledged?: boolean }
+  ) => {
+    try {
+      const updated = await ticketService.update(ticketId, updates);
+      if (selectedTicket && selectedTicket.id === ticketId) {
+        setSelectedTicket(updated);
+      }
+      await loadData();
+    } catch (err) {
+      console.error('Failed to update ticket details', err);
+    }
+  };
+
   const handleShareToChat = (ticket: Ticket) => {
-    // Navigate to messages with linked ticket ID
     navigate(`/messages?ticketId=${ticket.id}`);
   };
 
-  const kanbanColumns: { status: TicketStatus; label: string; icon: string; border: string }[] = [
+  const getNextStatus = (current: TicketStatus): TicketStatus | null => {
+    switch (current) {
+      case TicketStatus.REPORTED:
+        return TicketStatus.SCHEDULED;
+      case TicketStatus.SCHEDULED:
+        return TicketStatus.IN_PROGRESS;
+      case TicketStatus.IN_PROGRESS:
+        return TicketStatus.RESOLVED;
+      default:
+        return null;
+    }
+  };
+
+  // Filtered tickets
+  const filteredTickets = tickets.filter((t) => {
+    if (urgencyFilter !== 'ALL' && t.urgency !== urgencyFilter) return false;
+    if (propertyFilter !== 'ALL' && t.propertyId !== propertyFilter) return false;
+    if (searchFilter.trim()) {
+      const q = searchFilter.toLowerCase();
+      const matchTitle = t.title.toLowerCase().includes(q);
+      const matchDesc = t.description.toLowerCase().includes(q);
+      return matchTitle || matchDesc;
+    }
+    return true;
+  });
+
+  const kanbanColumns: {
+    status: TicketStatus;
+    label: string;
+    icon: string;
+    border: string;
+  }[] = [
     {
       status: TicketStatus.REPORTED,
       label: 'Reported',
@@ -165,201 +220,298 @@ export const TicketsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* View Toggle */}
           <div className="flex rounded-xl bg-slate-900 border border-slate-800 p-1">
             <button
               onClick={() => setViewMode('kanban')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 viewMode === 'kanban'
-                  ? 'bg-slate-800 text-slate-100'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span>📋</span>
+              <span>📊</span>
               <span>Kanban</span>
             </button>
             <button
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 viewMode === 'list'
-                  ? 'bg-slate-800 text-slate-100'
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              <span>📑</span>
+              <span>📋</span>
               <span>List</span>
             </button>
           </div>
 
-          {/* New Ticket (Tenants & Landlords can create) */}
+          {/* New Ticket Button (Tenants and Landlords) */}
           {role !== UserRole.CONTRACTOR && (
             <button
               onClick={() => setIsNewModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow transition-all flex items-center gap-1.5"
-              id="new-ticket-button"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold tracking-wide transition-colors shadow-lg shadow-indigo-600/20 flex items-center gap-2"
             >
               <span>+</span>
-              <span>New Ticket</span>
+              <span>Report Issue</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* ─── Tickets View ─────────────────────────────────────────────────────── */}
+      {/* ─── Filter Bar ───────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-900/80 border border-slate-800/80 rounded-2xl">
+        {/* Search Filter */}
+        <div>
+          <input
+            type="text"
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            placeholder="Search tickets by keywords..."
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+
+        {/* Urgency Filter */}
+        <div>
+          <select
+            value={urgencyFilter}
+            onChange={(e) => setUrgencyFilter(e.target.value)}
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="ALL">All Urgency Levels</option>
+            <option value={TicketUrgency.LOW}>Low</option>
+            <option value={TicketUrgency.MEDIUM}>Medium</option>
+            <option value={TicketUrgency.HIGH}>High</option>
+            <option value={TicketUrgency.CRITICAL}>Critical (Emergency)</option>
+          </select>
+        </div>
+
+        {/* Property Filter */}
+        <div>
+          <select
+            value={propertyFilter}
+            onChange={(e) => setPropertyFilter(e.target.value)}
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="ALL">All Properties</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.address} {p.unitNumber ? `(${p.unitNumber})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* ─── Content Views ────────────────────────────────────────────────────── */}
       {isLoading ? (
         <div className="py-20 text-center text-slate-400 text-sm">Loading tickets...</div>
-      ) : tickets.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800 p-8">
-          <span className="text-4xl">🎉</span>
-          <h2 className="text-base font-bold text-slate-200 mt-3">All Clear! No Active Tickets</h2>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-            There are currently no maintenance issues pending for your account.
-          </p>
-          {role !== UserRole.CONTRACTOR && (
-            <button
-              onClick={() => setIsNewModalOpen(true)}
-              className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold"
-            >
-              + Submit New Request
-            </button>
-          )}
+      ) : filteredTickets.length === 0 ? (
+        <div className="py-20 text-center text-slate-500 space-y-3 bg-slate-900/40 border border-slate-800 rounded-2xl">
+          <span className="text-4xl">📬</span>
+          <div className="text-base font-semibold text-slate-300">No maintenance tickets found</div>
+          <div className="text-xs text-slate-400 max-w-sm mx-auto">
+            {searchFilter || urgencyFilter !== 'ALL' || propertyFilter !== 'ALL'
+              ? 'Try adjusting your search or filters.'
+              : 'Everything is running smoothly! New repair requests will appear here.'}
+          </div>
         </div>
       ) : viewMode === 'kanban' ? (
-        /* ─── Kanban Board View ────────────────────────────────────────────── */
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+        /* ─── KANBAN BOARD VIEW ──────────────────────────────────────────────── */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {kanbanColumns.map((col) => {
-            const colTickets = tickets.filter((t) => t.status === col.status);
-
+            const columnTickets = filteredTickets.filter((t) => t.status === col.status);
             return (
               <div
                 key={col.status}
-                className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col gap-3 min-h-[400px]"
+                className="flex flex-col rounded-2xl bg-slate-900/60 border border-slate-800 p-3 min-h-[500px]"
               >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
                   <div className="flex items-center gap-2">
                     <span className="text-base">{col.icon}</span>
-                    <span className="font-bold text-xs text-slate-200 uppercase tracking-wider">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
                       {col.label}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-slate-400">
-                    {colTickets.length}
+                  <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[11px] font-bold text-slate-300">
+                    {columnTickets.length}
                   </span>
                 </div>
 
                 {/* Column Cards */}
-                <div className="space-y-3">
-                  {colTickets.map((ticket) => (
-                    <div
-                      key={ticket.id}
-                      onClick={() => setSelectedTicket(ticket)}
-                      className={`p-4 rounded-xl bg-slate-800/80 hover:bg-slate-800 border ${col.border} hover:border-slate-600 transition-all cursor-pointer shadow-sm space-y-2`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <UrgencyBadge urgency={ticket.urgency} />
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          #{ticket.id.slice(0, 6)}
-                        </span>
-                      </div>
+                <div className="space-y-3 flex-1 overflow-y-auto">
+                  {columnTickets.map((ticket) => {
+                    const prop = properties.find((p) => p.id === ticket.propertyId);
+                    const nextStatus = getNextStatus(ticket.status);
 
-                      <h2 className="font-bold text-xs text-slate-100 leading-snug">
-                        {ticket.title}
-                      </h2>
-                      <p className="text-[11px] text-slate-400 line-clamp-2">
-                        {ticket.description}
-                      </p>
-
-                      {ticket.eta && (
-                        <div className="text-[10px] text-sky-400 flex items-center gap-1">
-                          <span>⏱️ ETA:</span>
-                          <span>{ticket.eta}</span>
+                    return (
+                      <div
+                        key={ticket.id}
+                        className={`p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-indigo-500/50 transition-all space-y-2.5 shadow-sm group`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <UrgencyBadge urgency={ticket.urgency} />
+                          {ticket.photoUrls && ticket.photoUrls.length > 0 && (
+                            <span className="text-[10px] font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded flex items-center gap-1">
+                              <span>📷</span>
+                              <span>{ticket.photoUrls.length}</span>
+                            </span>
+                          )}
                         </div>
-                      )}
 
-                      <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px] text-slate-400">
-                        <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleShareToChat(ticket);
-                          }}
-                          className="hover:text-indigo-300 flex items-center gap-1 font-medium"
-                          title="Share to Chat"
+                        {/* Click to open details */}
+                        <div
+                          onClick={() => setSelectedTicket(ticket)}
+                          className="cursor-pointer space-y-1"
                         >
-                          <span>💬 Chat</span>
-                        </button>
+                          <h2 className="text-xs font-bold text-slate-100 group-hover:text-indigo-300 transition-colors line-clamp-2">
+                            {ticket.title}
+                          </h2>
+                          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                            {ticket.description}
+                          </p>
+                        </div>
+
+                        {/* Property / ETA info */}
+                        <div className="pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-400">
+                          <span className="truncate max-w-[130px]">
+                            {prop ? prop.address : 'Property'}
+                          </span>
+                          {ticket.eta ? (
+                            <span className="font-semibold text-indigo-400">ETA: {ticket.eta}</span>
+                          ) : (
+                            <span>#{ticket.id.slice(0, 6)}</span>
+                          )}
+                        </div>
+
+                        {/* Quick Action Bar */}
+                        <div className="pt-1.5 flex items-center justify-between gap-1">
+                          <button
+                            onClick={() => handleShareToChat(ticket)}
+                            className="px-2 py-1 rounded bg-slate-900 hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-300 text-[10px] font-medium transition-colors flex items-center gap-1"
+                            title="Discuss ticket in chat"
+                          >
+                            <span>💬</span>
+                            <span>Chat</span>
+                          </button>
+
+                          {nextStatus && (
+                            <button
+                              onClick={() => handleUpdateStatus(ticket.id, nextStatus)}
+                              className="px-2 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[10px] font-semibold border border-indigo-500/30 transition-colors flex items-center gap-1"
+                              title={`Advance status to ${nextStatus}`}
+                            >
+                              <span>Next</span>
+                              <span>→</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
         </div>
       ) : (
-        /* ─── List View ────────────────────────────────────────────────────── */
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden">
-          <div className="divide-y divide-slate-800">
-            {tickets.map((ticket) => (
-              <div
-                key={ticket.id}
-                onClick={() => setSelectedTicket(ticket)}
-                className="p-4 hover:bg-slate-800/40 transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <UrgencyBadge urgency={ticket.urgency} />
-                    <StatusBadge status={ticket.status} />
-                    <span className="text-xs font-mono text-slate-500">
-                      #{ticket.id.slice(0, 8)}
-                    </span>
-                  </div>
-                  <h2 className="font-bold text-sm text-slate-100">{ticket.title}</h2>
-                  <p className="text-xs text-slate-400 line-clamp-1">{ticket.description}</p>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  {ticket.eta && (
-                    <span className="text-xs text-sky-300 font-medium">ETA: {ticket.eta}</span>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShareToChat(ticket);
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition-colors"
-                  >
-                    💬 Share to Chat
-                  </button>
-                </div>
-              </div>
-            ))}
+        /* ─── LIST VIEW ──────────────────────────────────────────────────────── */
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-300">
+              <thead className="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th className="px-4 py-3.5">Ticket</th>
+                  <th className="px-4 py-3.5">Property</th>
+                  <th className="px-4 py-3.5">Urgency</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-4 py-3.5">ETA / Schedule</th>
+                  <th className="px-4 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {filteredTickets.map((ticket) => {
+                  const prop = properties.find((p) => p.id === ticket.propertyId);
+                  return (
+                    <tr
+                      key={ticket.id}
+                      className="hover:bg-slate-800/30 transition-colors cursor-pointer"
+                      onClick={() => setSelectedTicket(ticket)}
+                    >
+                      <td className="px-4 py-3.5">
+                        <div className="font-semibold text-slate-100 flex items-center gap-1.5">
+                          <span>{ticket.title}</span>
+                          {ticket.photoUrls && ticket.photoUrls.length > 0 && (
+                            <span className="text-[10px] text-slate-400">📷</span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 font-mono">
+                          #{ticket.id.slice(0, 8)}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-slate-300">{prop ? prop.address : '—'}</td>
+                      <td className="px-4 py-3.5">
+                        <UrgencyBadge urgency={ticket.urgency} />
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <StatusBadge status={ticket.status} />
+                      </td>
+                      <td className="px-4 py-3.5 text-slate-400">
+                        {ticket.eta ? (
+                          <span className="font-semibold text-indigo-400">{ticket.eta}</span>
+                        ) : (
+                          'Not set'
+                        )}
+                      </td>
+                      <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleShareToChat(ticket)}
+                            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                          >
+                            Chat
+                          </button>
+                          <button
+                            onClick={() => setSelectedTicket(ticket)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-xs font-semibold"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
-      {/* ─── Create Ticket Modal ──────────────────────────────────────────────── */}
+      {/* ─── New Ticket Creation Modal ────────────────────────────────────────── */}
       <Modal
         isOpen={isNewModalOpen}
         onClose={() => setIsNewModalOpen(false)}
         title="Submit Maintenance Request"
-        maxWidth="lg"
+        maxWidth="xl"
       >
         <form onSubmit={handleCreateTicket} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Select Property / Unit *
+              Select Property *
             </label>
             <select
+              required
               value={newPropertyId}
               onChange={(e) => setNewPropertyId(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
             >
               {properties.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.address} {p.unitNumber ? `(${p.unitNumber})` : ''}
+                  {p.address} {p.unitNumber ? `(Unit ${p.unitNumber})` : ''}
                 </option>
               ))}
             </select>
@@ -383,7 +535,7 @@ export const TicketsPage: React.FC = () => {
             </label>
             <textarea
               required
-              rows={4}
+              rows={3}
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               placeholder="Describe what happened, where the issue is located, and any attempts to fix it..."
@@ -397,13 +549,25 @@ export const TicketsPage: React.FC = () => {
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[
-                { level: TicketUrgency.LOW, label: 'Low', desc: 'Cosmetic / Non-urgent' },
-                { level: TicketUrgency.MEDIUM, label: 'Medium', desc: 'Noticeable inconvenience' },
-                { level: TicketUrgency.HIGH, label: 'High', desc: 'Potential property damage' },
+                {
+                  level: TicketUrgency.LOW,
+                  label: 'Low',
+                  desc: 'Cosmetic / Non-urgent',
+                },
+                {
+                  level: TicketUrgency.MEDIUM,
+                  label: 'Medium',
+                  desc: 'Noticeable inconvenience',
+                },
+                {
+                  level: TicketUrgency.HIGH,
+                  label: 'High',
+                  desc: 'Potential property damage',
+                },
                 {
                   level: TicketUrgency.CRITICAL,
                   label: 'Critical',
-                  desc: 'Flood / Fire / No heat',
+                  desc: 'Flood / Fire / Emergency',
                 },
               ].map((item) => (
                 <button
@@ -412,7 +576,7 @@ export const TicketsPage: React.FC = () => {
                   onClick={() => setNewUrgency(item.level)}
                   className={`p-2.5 rounded-xl text-left border transition-all ${
                     newUrgency === item.level
-                      ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300 font-semibold'
+                      ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300 font-semibold ring-1 ring-indigo-500'
                       : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
                   }`}
                 >
@@ -423,7 +587,10 @@ export const TicketsPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3">
+          {/* Photo Upload Dropzone with Compression */}
+          <PhotoUploadDropzone photos={newPhotos} onChange={setNewPhotos} maxPhotos={4} />
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
             <button
               type="button"
               onClick={() => setIsNewModalOpen(false)}
@@ -443,101 +610,18 @@ export const TicketsPage: React.FC = () => {
       </Modal>
 
       {/* ─── Ticket Details & Action Modal ────────────────────────────────────── */}
-      <Modal
+      <TicketDetailModal
+        ticket={selectedTicket}
         isOpen={Boolean(selectedTicket)}
         onClose={() => setSelectedTicket(null)}
-        title={selectedTicket ? selectedTicket.title : ''}
-        maxWidth="lg"
-      >
-        {selectedTicket && (
-          <div className="space-y-5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <UrgencyBadge urgency={selectedTicket.urgency} />
-              <StatusBadge status={selectedTicket.status} />
-              <span className="text-xs text-slate-400 font-mono">
-                ID: {selectedTicket.id.slice(0, 8)}
-              </span>
-            </div>
-
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Description
-              </h2>
-              <p className="text-sm text-slate-200 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
-                {selectedTicket.description}
-              </p>
-            </div>
-
-            {/* Contractor Assignment (for Landlords) */}
-            {role === UserRole.LANDLORD && (
-              <div>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Assign Contractor
-                </h2>
-                <select
-                  value={selectedTicket.contractorId || ''}
-                  onChange={(e) => handleAssignContractor(selectedTicket.id, e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="">Unassigned</option>
-                  {contractors.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({c.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Status Transition Action Bar */}
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                Update Status
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  disabled={updatingStatus || selectedTicket.status === TicketStatus.SCHEDULED}
-                  onClick={() => handleUpdateStatus(selectedTicket.id, TicketStatus.SCHEDULED)}
-                  className="px-3 py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-600/50 text-sky-300 border border-sky-500/40 text-xs font-semibold disabled:opacity-40"
-                >
-                  Schedule
-                </button>
-                <button
-                  disabled={updatingStatus || selectedTicket.status === TicketStatus.IN_PROGRESS}
-                  onClick={() => handleUpdateStatus(selectedTicket.id, TicketStatus.IN_PROGRESS)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/40 text-xs font-semibold disabled:opacity-40"
-                >
-                  Mark In Progress
-                </button>
-                <button
-                  disabled={updatingStatus || selectedTicket.status === TicketStatus.RESOLVED}
-                  onClick={() => handleUpdateStatus(selectedTicket.id, TicketStatus.RESOLVED)}
-                  className="px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 text-xs font-semibold disabled:opacity-40"
-                >
-                  Mark Resolved
-                </button>
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="pt-3 border-t border-slate-800 flex justify-between items-center">
-              <button
-                onClick={() => handleShareToChat(selectedTicket)}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs font-semibold flex items-center gap-1.5"
-              >
-                <span>💬</span>
-                <span>Discuss in Chat</span>
-              </button>
-              <button
-                onClick={() => setSelectedTicket(null)}
-                className="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
+        properties={properties}
+        contractors={contractors}
+        role={role}
+        onUpdateStatus={handleUpdateStatus}
+        onAssignContractor={handleAssignContractor}
+        onUpdateDetails={handleUpdateDetails}
+        onShareToChat={handleShareToChat}
+      />
     </div>
   );
 };

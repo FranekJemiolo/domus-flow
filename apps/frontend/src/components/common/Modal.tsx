@@ -9,7 +9,7 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -35,7 +35,8 @@ export const Modal: React.FC<ModalProps> = ({
     sm: 'max-w-sm',
     md: 'max-w-md',
     lg: 'max-w-lg',
-    xl: 'max-w-2xl',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
   }[maxWidth];
 
   return (
