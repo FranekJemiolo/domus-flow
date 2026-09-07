@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -84,7 +85,6 @@ export default defineConfig({
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
           dexie: ['dexie'],
-          charts: [],
         },
       },
     },
@@ -98,6 +98,7 @@ export default defineConfig({
       },
     },
   },
+  // Vitest configuration
   test: {
     globals: true,
     environment: 'jsdom',
@@ -105,7 +106,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'src/__tests__/setup.ts'],
+      exclude: [
+        'node_modules/',
+        'src/__tests__/setup.ts',
+        '**/*.config.*',
+        'dist/',
+      ],
+      include: ['src/**/*.{ts,tsx}'],
     },
   },
 });
