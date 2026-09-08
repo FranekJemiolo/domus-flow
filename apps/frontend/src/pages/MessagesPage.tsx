@@ -27,7 +27,7 @@ import { UrgencyBadge, StatusBadge } from '../components/common/Badge';
 import { TicketDetailModal } from '../components/tickets/TicketDetailModal';
 
 export const MessagesPage: React.FC = () => {
-  const { currentUser, role } = useAuth();
+  const { currentUser, role, isDemo } = useAuth();
   const [searchParams] = useSearchParams();
 
   // Channel & Participant State
@@ -123,6 +123,38 @@ export const MessagesPage: React.FC = () => {
       setNewContent('');
       setSelectedTicketId(null);
       await loadData();
+
+      // Simulated interactive reply in Demo Mode to showcase real-time communication
+      if (isDemo && currentUser) {
+        setTimeout(async () => {
+          try {
+            let autoReply = 'Thanks for the message! We received your update.';
+            if (role === UserRole.LANDLORD) {
+              if (threadType === MessageThreadType.TENANT_LANDLORD) {
+                autoReply = 'Thank you for following up! We appreciate you keeping us in the loop.';
+              } else {
+                autoReply =
+                  'Understood! I will pick up the required parts and arrive as scheduled.';
+              }
+            } else if (role === UserRole.TENANT) {
+              autoReply =
+                'Received your maintenance report! I am reviewing the details with our contractor right away.';
+            } else if (role === UserRole.CONTRACTOR) {
+              autoReply = 'Thanks for the update! Quote and schedule are approved. Please proceed.';
+            }
+
+            await messageService.simulateIncomingMessage({
+              threadType,
+              senderId: otherUserId,
+              receiverId: currentUser.id,
+              content: autoReply,
+            });
+            await loadData();
+          } catch (err) {
+            console.error('Demo auto-reply error', err);
+          }
+        }, 1200);
+      }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : 'Failed to send message');
     } finally {
@@ -163,15 +195,15 @@ export const MessagesPage: React.FC = () => {
           ];
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-slate-900/70 border border-slate-800 rounded-2xl overflow-hidden animate-fade-in">
+    <div className="h-[calc(100vh-140px)] flex flex-col bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs animate-fade-in">
       {/* ─── Channel & Participant Header ────────────────────────────────────────── */}
-      <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+      <div className="p-4 bg-slate-50/70 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div>
-          <h1 className="text-base font-bold text-slate-100 flex items-center gap-2">
+          <h1 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <span>💬</span>
             <span>Direct Maintenance Communications</span>
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Role-isolated channels • Landlord ↔ Tenant or Landlord ↔ Contractor
           </p>
         </div>
@@ -179,14 +211,14 @@ export const MessagesPage: React.FC = () => {
         {/* Channel Tab Selector */}
         <div className="flex items-center gap-2 flex-wrap">
           {isLandlord && (
-            <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800">
+            <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200 shadow-xs">
               <button
                 type="button"
                 onClick={() => setThreadType(MessageThreadType.TENANT_LANDLORD)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
                   threadType === MessageThreadType.TENANT_LANDLORD
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-white text-indigo-700 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Tenant Channel
@@ -196,8 +228,8 @@ export const MessagesPage: React.FC = () => {
                 onClick={() => setThreadType(MessageThreadType.LANDLORD_CONTRACTOR)}
                 className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
                   threadType === MessageThreadType.LANDLORD_CONTRACTOR
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-white text-indigo-700 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Contractor Channel
@@ -210,7 +242,7 @@ export const MessagesPage: React.FC = () => {
             <select
               value={otherUserId}
               onChange={(e) => setOtherUserId(e.target.value)}
-              className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+              className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-indigo-500 shadow-xs"
             >
               <option value={DEMO_USERS.tenantA.id}>Sarah Jenkins (Unit 4B)</option>
               <option value={DEMO_USERS.tenantB.id}>Marcus Vance (Unit 101)</option>
@@ -218,13 +250,13 @@ export const MessagesPage: React.FC = () => {
           )}
 
           {isTenant && (
-            <span className="px-3 py-1 rounded-lg bg-indigo-600/20 text-indigo-300 text-xs font-semibold border border-indigo-500/30">
+            <span className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-semibold border border-indigo-200/80 shadow-xs">
               Chatting with Landlord
             </span>
           )}
 
           {isContractor && (
-            <span className="px-3 py-1 rounded-lg bg-sky-600/20 text-sky-300 text-xs font-semibold border border-sky-500/30">
+            <span className="px-3 py-1 rounded-lg bg-sky-50 text-sky-700 text-xs font-semibold border border-sky-200/80 shadow-xs">
               Chatting with Landlord
             </span>
           )}
@@ -232,13 +264,13 @@ export const MessagesPage: React.FC = () => {
       </div>
 
       {/* ─── Messages Feed ────────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/30">
         {isLoading ? (
           <div className="py-20 text-center text-slate-400 text-xs">Loading conversations...</div>
         ) : messages.length === 0 ? (
-          <div className="py-20 text-center text-slate-500 text-xs space-y-2">
+          <div className="py-20 text-center text-slate-400 text-xs space-y-2">
             <span className="text-3xl">✉️</span>
-            <div>No messages in this channel yet.</div>
+            <div className="font-semibold text-slate-700">No messages in this channel yet.</div>
             <div className="text-[11px] text-slate-400">Say hello or share a ticket to begin!</div>
           </div>
         ) : (
@@ -252,10 +284,10 @@ export const MessagesPage: React.FC = () => {
                 className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} space-y-1`}
               >
                 <div className="flex items-center gap-2 px-1">
-                  <span className="text-[11px] font-medium text-slate-400">
+                  <span className="text-[11px] font-semibold text-slate-500">
                     {isMine ? 'You' : 'Participant'}
                   </span>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[10px] text-slate-400">
                     {new Date(msg.timestamp).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
@@ -264,10 +296,10 @@ export const MessagesPage: React.FC = () => {
                 </div>
 
                 <div
-                  className={`max-w-md sm:max-w-lg rounded-2xl p-4 text-xs space-y-2.5 shadow-md ${
+                  className={`max-w-md sm:max-w-lg rounded-2xl p-4 text-xs space-y-2.5 shadow-xs ${
                     isMine
-                      ? 'bg-indigo-600 text-white rounded-tr-none'
-                      : 'bg-slate-800 text-slate-200 border border-slate-700/80 rounded-tl-none'
+                      ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-100'
+                      : 'bg-white text-slate-800 border border-slate-200/80 rounded-tl-none'
                   }`}
                 >
                   <div className="leading-relaxed text-[13px]">{msg.content}</div>
@@ -277,14 +309,14 @@ export const MessagesPage: React.FC = () => {
                     <div
                       className={`p-3 rounded-xl border text-xs space-y-2 cursor-pointer transition-all ${
                         isMine
-                          ? 'bg-indigo-700/70 border-indigo-500/50 text-white hover:bg-indigo-700'
-                          : 'bg-slate-900/90 border-slate-700 text-slate-200 hover:border-slate-600'
+                          ? 'bg-indigo-700/80 border-indigo-400/60 text-white hover:bg-indigo-700'
+                          : 'bg-slate-50/90 border-slate-200 text-slate-800 hover:border-slate-300'
                       }`}
                       onClick={() => setActiveModalTicket(linkedTicket)}
                       title="Click to view full ticket details"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-80 flex items-center gap-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-90 flex items-center gap-1">
                           <span>🎫</span>
                           <span>Linked Ticket</span>
                         </span>
@@ -296,7 +328,7 @@ export const MessagesPage: React.FC = () => {
                         {linkedTicket.description}
                       </p>
 
-                      <div className="pt-1 flex items-center justify-between text-[10px] border-t border-white/10">
+                      <div className="pt-1 flex items-center justify-between text-[10px] border-t border-black/5 dark:border-white/10">
                         <StatusBadge status={linkedTicket.status} />
                         {linkedTicket.eta && (
                           <span className="font-semibold">ETA: {linkedTicket.eta}</span>
@@ -314,7 +346,7 @@ export const MessagesPage: React.FC = () => {
       </div>
 
       {/* ─── Canned Replies Bar ──────────────────────────────────────────────── */}
-      <div className="px-3 sm:px-4 pt-2 bg-slate-900/90 border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto pb-1">
+      <div className="px-3 sm:px-4 py-2 bg-slate-50/80 border-t border-slate-200/80 flex items-center gap-1.5 overflow-x-auto">
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0 mr-1">
           Quick Replies:
         </span>
@@ -323,7 +355,7 @@ export const MessagesPage: React.FC = () => {
             key={i}
             type="button"
             onClick={() => setNewContent(reply)}
-            className="px-2.5 py-1 rounded-full bg-slate-950 hover:bg-slate-800 text-[11px] text-slate-300 border border-slate-800 hover:border-slate-700 transition-colors whitespace-nowrap shrink-0"
+            className="px-2.5 py-1 rounded-full bg-white hover:bg-indigo-50 text-[11px] text-slate-700 hover:text-indigo-700 border border-slate-200 hover:border-indigo-200 transition-colors whitespace-nowrap shrink-0 shadow-xs"
           >
             {reply}
           </button>
@@ -331,9 +363,9 @@ export const MessagesPage: React.FC = () => {
       </div>
 
       {/* ─── Message Input & Linked Ticket Preview ─────────────────────────────── */}
-      <div className="p-3 sm:p-4 bg-slate-900 shrink-0 space-y-2">
+      <div className="p-3 sm:p-4 bg-white border-t border-slate-200/80 shrink-0 space-y-2">
         {selectedTicketId && (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-700">
             <span className="flex items-center gap-2">
               <span>📎 Attaching ticket:</span>
               <span className="font-bold font-mono">#{selectedTicketId.slice(0, 8)}</span>
@@ -341,7 +373,7 @@ export const MessagesPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setSelectedTicketId(null)}
-              className="text-xs text-slate-400 hover:text-white"
+              className="text-xs text-indigo-500 hover:text-indigo-700"
             >
               ✕ Remove
             </button>
@@ -353,7 +385,7 @@ export const MessagesPage: React.FC = () => {
           <select
             value={selectedTicketId || ''}
             onChange={(e) => setSelectedTicketId(e.target.value || null)}
-            className="px-2.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none focus:border-indigo-500 max-w-[150px] sm:max-w-xs truncate"
+            className="px-2.5 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-slate-700 text-xs focus:outline-none focus:border-indigo-500 focus:bg-white max-w-[150px] sm:max-w-xs truncate shadow-xs"
             title="Attach a ticket reference to message"
           >
             <option value="">📎 Attach Ticket</option>
@@ -369,13 +401,13 @@ export const MessagesPage: React.FC = () => {
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
             placeholder="Type a message or updates..."
-            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
           />
 
           <button
             type="submit"
             disabled={isSending || (!newContent.trim() && !selectedTicketId)}
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs tracking-wide transition-colors disabled:opacity-50 flex items-center gap-1 shrink-0"
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs tracking-wide transition-colors disabled:opacity-50 flex items-center gap-1 shrink-0 shadow-xs"
           >
             <span>Send</span>
             <span>➤</span>

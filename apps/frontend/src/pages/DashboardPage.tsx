@@ -87,10 +87,10 @@ export const DashboardPage: React.FC = () => {
       {/* ─── Header & Quick Actions Bar ──────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Executive Overview
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Real-time maintenance monitoring across all rental portfolios
           </p>
         </div>
@@ -98,21 +98,21 @@ export const DashboardPage: React.FC = () => {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => navigate('/tickets?action=new')}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm shadow-indigo-100 transition-all flex items-center gap-1.5"
           >
             <span>+</span>
             <span>New Ticket</span>
           </button>
           <button
             onClick={() => navigate('/properties?action=new')}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors shadow-xs"
           >
             + Add Property
           </button>
           <button
             onClick={handleExportCsv}
             disabled={isExporting}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors flex items-center gap-1.5 disabled:opacity-50 shadow-xs"
             title="Download full repair logs as CSV"
           >
             <span>📥</span>
@@ -123,19 +123,19 @@ export const DashboardPage: React.FC = () => {
 
       {/* ─── Urgent Alert Banner ──────────────────────────────────────────────── */}
       {criticalTickets.length > 0 && (
-        <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 flex items-start gap-3.5 animate-slide-up">
+        <div className="p-4 rounded-2xl bg-rose-50/90 border border-rose-200 flex items-start gap-3.5 animate-slide-up shadow-xs">
           <span className="text-2xl shrink-0">🚨</span>
           <div className="flex-1">
-            <h2 className="text-sm font-bold text-rose-300">
+            <h2 className="text-sm font-bold text-rose-900">
               Immediate Attention Required: {criticalTickets.length} Critical Issue(s)
             </h2>
-            <div className="mt-1 text-xs text-rose-200/80 space-y-1">
+            <div className="mt-1 text-xs text-rose-800/90 space-y-1">
               {criticalTickets.map((t) => (
                 <div key={t.id} className="flex items-center justify-between">
                   <span>• {t.title}</span>
                   <button
                     onClick={() => navigate(`/tickets?id=${t.id}`)}
-                    className="text-xs font-semibold text-rose-300 hover:underline"
+                    className="text-xs font-semibold text-rose-700 hover:text-rose-900 underline"
                   >
                     View Ticket →
                   </button>
@@ -148,87 +148,87 @@ export const DashboardPage: React.FC = () => {
 
       {/* ─── Metric Stat Cards ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Managed Properties</span>
-            <span>🏠</span>
+            <span className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-sm">🏠</span>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-slate-100">
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">
             {stats?.totalProperties ?? 0}
           </div>
-          <div className="mt-1 text-[11px] text-slate-400">Total units registered</div>
+          <div className="mt-1 text-[11px] text-slate-500">Total units registered</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Active Tenants</span>
-            <span>👥</span>
+            <span className="p-1.5 rounded-lg bg-teal-50 text-teal-600 text-sm">👥</span>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-slate-100">
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">
             {stats?.totalTenants ?? 0}
           </div>
-          <div className="mt-1 text-[11px] text-slate-400">Occupied leases</div>
+          <div className="mt-1 text-[11px] text-slate-500">Occupied leases</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Open Tickets</span>
-            <span>🎫</span>
+            <span className="p-1.5 rounded-lg bg-amber-50 text-amber-600 text-sm">🎫</span>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-amber-400">
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-amber-600">
             {stats?.openTickets ?? 0}
           </div>
-          <div className="mt-1 text-[11px] text-slate-400">Pending repair or resolution</div>
+          <div className="mt-1 text-[11px] text-slate-500">Pending repair or resolution</div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 backdrop-blur-sm">
-          <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Critical Issues</span>
-            <span>⚡</span>
+            <span className="p-1.5 rounded-lg bg-rose-50 text-rose-600 text-sm">⚡</span>
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-rose-400">
+          <div className="mt-2 text-2xl sm:text-3xl font-extrabold text-rose-600">
             {stats?.criticalTickets ?? 0}
           </div>
-          <div className="mt-1 text-[11px] text-slate-400">Emergencies flagged</div>
+          <div className="mt-1 text-[11px] text-slate-500">Emergencies flagged</div>
         </div>
       </div>
 
       {/* ─── Maintenance Pipeline Distribution ───────────────────────────────── */}
       {allTickets.length > 0 && (
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-4">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span>📊</span>
                 <span>Maintenance Pipeline Distribution</span>
               </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Live workflow progression across all maintenance requests
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs flex-wrap">
-              <span className="flex items-center gap-1.5 text-indigo-400">
-                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+              <span className="flex items-center gap-1.5 text-indigo-700 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
                 Reported ({allTickets.filter((t) => t.status === TicketStatus.REPORTED).length})
               </span>
-              <span className="flex items-center gap-1.5 text-sky-400">
-                <span className="w-2 h-2 rounded-full bg-sky-500" />
+              <span className="flex items-center gap-1.5 text-sky-700 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
                 Scheduled ({allTickets.filter((t) => t.status === TicketStatus.SCHEDULED).length})
               </span>
-              <span className="flex items-center gap-1.5 text-amber-400">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="flex items-center gap-1.5 text-amber-700 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 In Progress (
                 {allTickets.filter((t) => t.status === TicketStatus.IN_PROGRESS).length})
               </span>
-              <span className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="flex items-center gap-1.5 text-emerald-700 font-medium">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 Resolved ({allTickets.filter((t) => t.status === TicketStatus.RESOLVED).length})
               </span>
             </div>
           </div>
 
           {/* Visual Multi-Segment Pipeline Bar */}
-          <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800">
+          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200/60">
             <div
               style={{
                 width: `${(allTickets.filter((t) => t.status === TicketStatus.REPORTED).length / allTickets.length) * 100}%`,
@@ -260,12 +260,12 @@ export const DashboardPage: React.FC = () => {
       {/* ─── Recent Tickets & Properties Snapshot ────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Tickets Table */}
-        <div className="lg:col-span-2 p-5 rounded-2xl bg-slate-900/70 border border-slate-800">
+        <div className="lg:col-span-2 p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-slate-100">Recent Maintenance Requests</h2>
+            <h2 className="text-base font-bold text-slate-900">Recent Maintenance Requests</h2>
             <button
               onClick={() => navigate('/tickets')}
-              className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
             >
               View All →
             </button>
@@ -273,7 +273,7 @@ export const DashboardPage: React.FC = () => {
 
           <div className="space-y-2.5">
             {recentTickets.length === 0 ? (
-              <div className="text-center py-8 text-slate-500 text-xs">
+              <div className="text-center py-8 text-slate-400 text-xs">
                 No tickets submitted yet.
               </div>
             ) : (
@@ -281,13 +281,13 @@ export const DashboardPage: React.FC = () => {
                 <div
                   key={ticket.id}
                   onClick={() => navigate('/tickets')}
-                  className="p-3.5 rounded-xl bg-slate-800/40 hover:bg-slate-800/80 border border-slate-800/80 hover:border-slate-700 transition-all cursor-pointer flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-xl bg-slate-50/70 hover:bg-slate-100/80 border border-slate-200/60 hover:border-slate-300 transition-all cursor-pointer flex items-center justify-between gap-3"
                 >
                   <div className="min-w-0">
-                    <div className="font-medium text-xs sm:text-sm text-slate-200 truncate">
+                    <div className="font-semibold text-xs sm:text-sm text-slate-900 truncate">
                       {ticket.title}
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-0.5 truncate">
+                    <div className="text-[11px] text-slate-500 mt-0.5 truncate">
                       {ticket.description}
                     </div>
                   </div>
@@ -302,12 +302,12 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Portfolio Snapshot */}
-        <div className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-bold text-slate-100">Properties Snapshot</h2>
+            <h2 className="text-base font-bold text-slate-900">Properties Snapshot</h2>
             <button
               onClick={() => navigate('/properties')}
-              className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
             >
               Manage →
             </button>
@@ -317,10 +317,10 @@ export const DashboardPage: React.FC = () => {
             {properties.slice(0, 4).map((prop) => (
               <div
                 key={prop.id}
-                className="p-3 rounded-xl bg-slate-800/40 border border-slate-800/80"
+                className="p-3 rounded-xl bg-slate-50/70 border border-slate-200/60"
               >
-                <div className="font-medium text-xs text-slate-200">{prop.address}</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
+                <div className="font-semibold text-xs text-slate-900">{prop.address}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">
                   {prop.unitNumber ? `Unit: ${prop.unitNumber}` : 'Single Family Home'}
                 </div>
               </div>

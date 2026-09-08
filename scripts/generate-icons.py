@@ -74,23 +74,28 @@ def create_domusflow_icon(size: int) -> Image.Image:
 
 def create_og_image() -> Image.Image:
     width, height = 1200, 630
-    img = Image.new("RGBA", (width, height), (2, 6, 23, 255)) # slate-950
+    img = Image.new("RGBA", (width, height), (248, 250, 252, 255)) # slate-50 light
     draw = ImageDraw.Draw(img)
 
     # Background ambient grid & lighting
     for y in range(0, height, 40):
-        draw.line([(0, y), (width, y)], fill=(30, 41, 59, 70), width=1)
+        draw.line([(0, y), (width, y)], fill=(241, 245, 249, 180), width=1)
     for x in range(0, width, 40):
-        draw.line([(x, 0), (x, height)], fill=(30, 41, 59, 70), width=1)
+        draw.line([(x, 0), (x, height)], fill=(241, 245, 249, 180), width=1)
 
-    # Central glowing card
+    # Central crisp white card with soft border & subtle shadow
     card_margin_x, card_margin_y = 120, 80
+    draw.rounded_rectangle(
+        [card_margin_x + 4, card_margin_y + 4, width - card_margin_x + 4, height - card_margin_y + 4],
+        radius=32,
+        fill=(226, 232, 240, 150),
+    )
     draw.rounded_rectangle(
         [card_margin_x, card_margin_y, width - card_margin_x, height - card_margin_y],
         radius=32,
-        fill=(15, 23, 42, 240),
-        outline=(99, 102, 241, 140),
-        width=3
+        fill=(255, 255, 255, 255),
+        outline=(226, 232, 240, 255),
+        width=2
     )
 
     # Embed App Icon
@@ -101,37 +106,42 @@ def create_og_image() -> Image.Image:
     try:
         font_large = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 62)
         font_sub = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 26)
-        font_tag = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 20)
+        font_tag = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 19)
     except Exception:
         font_large = font_sub = font_tag = ImageFont.load_default()
 
-    draw.text((card_margin_x + 280, card_margin_y + 85), "DomusFlow", font=font_large, fill=(248, 250, 252, 255))
+    draw.text((card_margin_x + 280, card_margin_y + 85), "DomusFlow", font=font_large, fill=(15, 23, 42, 255))
     draw.text(
         (card_margin_x + 280, card_margin_y + 165),
         "Maintenance Management Platform",
         font=font_sub,
-        fill=(129, 140, 248, 255)
+        fill=(79, 70, 229, 255)
     )
     draw.text(
         (card_margin_x + 280, card_margin_y + 205),
         "Landlords • Tenants • Contractors",
         font=font_sub,
-        fill=(148, 163, 184, 255)
+        fill=(100, 116, 139, 255)
     )
 
-    # Feature tags at bottom
-    tags = ["Offline Demo (Dexie.js)", "Kanban Workflows", "Dual-Channel Chat", "PWA & Mobile Ready"]
+    # Feature tags at bottom (Pastel Pills)
+    tags = [
+        ("Offline Demo (Dexie.js)", (238, 242, 255), (67, 56, 202), (199, 210, 254)),
+        ("Kanban Workflows", (240, 249, 255), (3, 105, 161), (186, 230, 253)),
+        ("Dual-Channel Chat", (254, 243, 199), (180, 83, 9), (253, 230, 138)),
+        ("PWA & Mobile Ready", (236, 253, 245), (6, 95, 70), (167, 243, 208)),
+    ]
     tag_x = card_margin_x + 60
-    for tag in tags:
+    for tag, bg, fg, border in tags:
         tag_w = len(tag) * 11 + 24
         draw.rounded_rectangle(
-            [tag_x, card_margin_y + 300, tag_x + tag_w, card_margin_y + 340],
+            [tag_x, card_margin_y + 300, tag_x + tag_w, card_margin_y + 342],
             radius=12,
-            fill=(30, 41, 59, 200),
-            outline=(99, 102, 241, 100),
+            fill=bg,
+            outline=border,
             width=1
         )
-        draw.text((tag_x + 12, card_margin_y + 310), tag, font=font_tag, fill=(226, 232, 240, 255))
+        draw.text((tag_x + 12, card_margin_y + 312), tag, font=font_tag, fill=fg)
         tag_x += tag_w + 14
 
     return img

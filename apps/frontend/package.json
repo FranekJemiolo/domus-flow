@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:demo": "VITE_DEMO_MODE=true vite build",
+    "build:demo": "VITE_DEMO_MODE=true VITE_BASE_PATH=/domus-flow/ vite build && cp dist/index.html dist/404.html",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",

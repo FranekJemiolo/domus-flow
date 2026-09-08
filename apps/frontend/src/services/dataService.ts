@@ -386,6 +386,39 @@ export const messageService = {
     const res = await apiClient.post<ApiResponse<Message>>('/messages', data);
     return res.data.data;
   },
+
+  async simulateIncomingMessage(data: {
+    threadType: MessageThreadType;
+    senderId: string;
+    receiverId: string;
+    content: string;
+    linkedTicketId?: string | null;
+  }): Promise<Message> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const newMsg: Message = {
+        id: uuidv4(),
+        threadType: data.threadType,
+        senderId: data.senderId,
+        receiverId: data.receiverId,
+        content: data.content,
+        linkedTicketId: data.linkedTicketId || null,
+        timestamp: new Date().toISOString(),
+      };
+      await db.messages.add(newMsg);
+      return newMsg;
+    }
+
+    return {
+      id: uuidv4(),
+      threadType: data.threadType,
+      senderId: data.senderId,
+      receiverId: data.receiverId,
+      content: data.content,
+      linkedTicketId: data.linkedTicketId || null,
+      timestamp: new Date().toISOString(),
+    };
+  },
 };
 
 // ─── DASHBOARD SERVICE ───────────────────────────────────────────────────────

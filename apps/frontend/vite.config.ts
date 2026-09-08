@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const isDemoMode = process.env.VITE_DEMO_MODE === 'true';
-const basePath = process.env.VITE_BASE_PATH || '/';
+const basePath = process.env.VITE_BASE_PATH || (isDemoMode ? '/domus-flow/' : '/');
 
 // https://vitejs.dev/config/
 export default defineConfig({

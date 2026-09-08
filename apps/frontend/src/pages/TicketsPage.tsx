@@ -212,23 +212,23 @@ export const TicketsPage: React.FC = () => {
       {/* ─── Header & Controls ────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             {role === UserRole.CONTRACTOR ? 'Assigned Work Orders' : 'Maintenance Tickets'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Track repairs, scheduling, and contractor assignments
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* View Toggle */}
-          <div className="flex rounded-xl bg-slate-900 border border-slate-800 p-1">
+          <div className="flex rounded-xl bg-slate-100 border border-slate-200 p-1 shadow-xs">
             <button
               onClick={() => setViewMode('kanban')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 viewMode === 'kanban'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>📊</span>
@@ -238,8 +238,8 @@ export const TicketsPage: React.FC = () => {
               onClick={() => setViewMode('list')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
                 viewMode === 'list'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>📋</span>
@@ -251,7 +251,7 @@ export const TicketsPage: React.FC = () => {
           {role !== UserRole.CONTRACTOR && (
             <button
               onClick={() => setIsNewModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold tracking-wide transition-colors shadow-lg shadow-indigo-600/20 flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold tracking-wide transition-colors shadow-sm shadow-indigo-100 flex items-center gap-2"
             >
               <span>+</span>
               <span>Report Issue</span>
@@ -261,7 +261,7 @@ export const TicketsPage: React.FC = () => {
       </div>
 
       {/* ─── Filter Bar ───────────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-900/80 border border-slate-800/80 rounded-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-white border border-slate-200/80 rounded-2xl shadow-xs">
         {/* Search Filter */}
         <div>
           <input
@@ -269,7 +269,7 @@ export const TicketsPage: React.FC = () => {
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
             placeholder="Search tickets by keywords..."
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-50/70 border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
           />
         </div>
 
@@ -278,7 +278,7 @@ export const TicketsPage: React.FC = () => {
           <select
             value={urgencyFilter}
             onChange={(e) => setUrgencyFilter(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-50/70 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
           >
             <option value="ALL">All Urgency Levels</option>
             <option value={TicketUrgency.LOW}>Low</option>
@@ -293,7 +293,7 @@ export const TicketsPage: React.FC = () => {
           <select
             value={propertyFilter}
             onChange={(e) => setPropertyFilter(e.target.value)}
-            className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+            className="w-full px-3.5 py-2 rounded-xl bg-slate-50/70 border border-slate-200 text-xs text-slate-700 focus:outline-none focus:border-indigo-500 focus:bg-white transition-colors"
           >
             <option value="ALL">All Properties</option>
             {properties.map((p) => (
@@ -309,10 +309,10 @@ export const TicketsPage: React.FC = () => {
       {isLoading ? (
         <div className="py-20 text-center text-slate-400 text-sm">Loading tickets...</div>
       ) : filteredTickets.length === 0 ? (
-        <div className="py-20 text-center text-slate-500 space-y-3 bg-slate-900/40 border border-slate-800 rounded-2xl">
+        <div className="py-20 text-center text-slate-500 space-y-3 bg-white border border-slate-200/80 rounded-2xl shadow-xs">
           <span className="text-4xl">📬</span>
-          <div className="text-base font-semibold text-slate-300">No maintenance tickets found</div>
-          <div className="text-xs text-slate-400 max-w-sm mx-auto">
+          <div className="text-base font-semibold text-slate-800">No maintenance tickets found</div>
+          <div className="text-xs text-slate-500 max-w-sm mx-auto">
             {searchFilter || urgencyFilter !== 'ALL' || propertyFilter !== 'ALL'
               ? 'Try adjusting your search or filters.'
               : 'Everything is running smoothly! New repair requests will appear here.'}
@@ -326,17 +326,17 @@ export const TicketsPage: React.FC = () => {
             return (
               <div
                 key={col.status}
-                className="flex flex-col rounded-2xl bg-slate-900/60 border border-slate-800 p-3 min-h-[500px]"
+                className="flex flex-col rounded-2xl bg-slate-50/80 border border-slate-200/80 p-3 min-h-[500px]"
               >
                 {/* Column Header */}
-                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200/80">
                   <div className="flex items-center gap-2">
                     <span className="text-base">{col.icon}</span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                       {col.label}
                     </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[11px] font-bold text-slate-300">
+                  <span className="px-2 py-0.5 rounded-full bg-white text-[11px] font-bold text-slate-700 border border-slate-200/80 shadow-xs">
                     {columnTickets.length}
                   </span>
                 </div>
@@ -350,12 +350,12 @@ export const TicketsPage: React.FC = () => {
                     return (
                       <div
                         key={ticket.id}
-                        className={`p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-indigo-500/50 transition-all space-y-2.5 shadow-sm group`}
+                        className="p-3.5 rounded-xl bg-white border border-slate-200/80 hover:border-indigo-300 hover:shadow-md transition-all space-y-2.5 shadow-xs group"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <UrgencyBadge urgency={ticket.urgency} />
                           {ticket.photoUrls && ticket.photoUrls.length > 0 && (
-                            <span className="text-[10px] font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded flex items-center gap-1">
+                            <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1 border border-slate-200/60">
                               <span>📷</span>
                               <span>{ticket.photoUrls.length}</span>
                             </span>
@@ -367,23 +367,23 @@ export const TicketsPage: React.FC = () => {
                           onClick={() => setSelectedTicket(ticket)}
                           className="cursor-pointer space-y-1"
                         >
-                          <h2 className="text-xs font-bold text-slate-100 group-hover:text-indigo-300 transition-colors line-clamp-2">
+                          <h2 className="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2">
                             {ticket.title}
                           </h2>
-                          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                          <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
                             {ticket.description}
                           </p>
                         </div>
 
                         {/* Property / ETA info */}
-                        <div className="pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-400">
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
                           <span className="truncate max-w-[130px]">
                             {prop ? prop.address : 'Property'}
                           </span>
                           {ticket.eta ? (
-                            <span className="font-semibold text-indigo-400">ETA: {ticket.eta}</span>
+                            <span className="font-semibold text-indigo-600">ETA: {ticket.eta}</span>
                           ) : (
-                            <span>#{ticket.id.slice(0, 6)}</span>
+                            <span className="text-slate-400">#{ticket.id.slice(0, 6)}</span>
                           )}
                         </div>
 
@@ -391,7 +391,7 @@ export const TicketsPage: React.FC = () => {
                         <div className="pt-1.5 flex items-center justify-between gap-1">
                           <button
                             onClick={() => handleShareToChat(ticket)}
-                            className="px-2 py-1 rounded bg-slate-900 hover:bg-indigo-600/30 text-slate-400 hover:text-indigo-300 text-[10px] font-medium transition-colors flex items-center gap-1"
+                            className="px-2 py-1 rounded-lg bg-slate-50 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 text-[10px] font-medium transition-colors border border-slate-200/80 flex items-center gap-1"
                             title="Discuss ticket in chat"
                           >
                             <span>💬</span>
@@ -401,7 +401,7 @@ export const TicketsPage: React.FC = () => {
                           {nextStatus && (
                             <button
                               onClick={() => handleUpdateStatus(ticket.id, nextStatus)}
-                              className="px-2 py-1 rounded bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[10px] font-semibold border border-indigo-500/30 transition-colors flex items-center gap-1"
+                              className="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-semibold border border-indigo-200/80 transition-colors flex items-center gap-1"
                               title={`Advance status to ${nextStatus}`}
                             >
                               <span>Next</span>
@@ -419,49 +419,49 @@ export const TicketsPage: React.FC = () => {
         </div>
       ) : (
         /* ─── LIST VIEW ──────────────────────────────────────────────────────── */
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/80 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-600 border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3.5">Ticket</th>
-                  <th className="px-4 py-3.5">Property</th>
-                  <th className="px-4 py-3.5">Urgency</th>
-                  <th className="px-4 py-3.5">Status</th>
-                  <th className="px-4 py-3.5">ETA / Schedule</th>
-                  <th className="px-4 py-3.5 text-right">Actions</th>
+                  <th className="px-4 py-3.5 font-semibold">Ticket</th>
+                  <th className="px-4 py-3.5 font-semibold">Property</th>
+                  <th className="px-4 py-3.5 font-semibold">Urgency</th>
+                  <th className="px-4 py-3.5 font-semibold">Status</th>
+                  <th className="px-4 py-3.5 font-semibold">ETA / Schedule</th>
+                  <th className="px-4 py-3.5 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {filteredTickets.map((ticket) => {
                   const prop = properties.find((p) => p.id === ticket.propertyId);
                   return (
                     <tr
                       key={ticket.id}
-                      className="hover:bg-slate-800/30 transition-colors cursor-pointer"
+                      className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                       onClick={() => setSelectedTicket(ticket)}
                     >
                       <td className="px-4 py-3.5">
-                        <div className="font-semibold text-slate-100 flex items-center gap-1.5">
+                        <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                           <span>{ticket.title}</span>
                           {ticket.photoUrls && ticket.photoUrls.length > 0 && (
-                            <span className="text-[10px] text-slate-400">📷</span>
+                            <span className="text-[10px] text-slate-500">📷</span>
                           )}
                         </div>
-                        <div className="text-[11px] text-slate-500 font-mono">
+                        <div className="text-[11px] text-slate-400 font-mono">
                           #{ticket.id.slice(0, 8)}
                         </div>
                       </td>
-                      <td className="px-4 py-3.5 text-slate-300">{prop ? prop.address : '—'}</td>
+                      <td className="px-4 py-3.5 text-slate-600">{prop ? prop.address : '—'}</td>
                       <td className="px-4 py-3.5">
                         <UrgencyBadge urgency={ticket.urgency} />
                       </td>
                       <td className="px-4 py-3.5">
                         <StatusBadge status={ticket.status} />
                       </td>
-                      <td className="px-4 py-3.5 text-slate-400">
+                      <td className="px-4 py-3.5 text-slate-500">
                         {ticket.eta ? (
-                          <span className="font-semibold text-indigo-400">{ticket.eta}</span>
+                          <span className="font-semibold text-indigo-600">{ticket.eta}</span>
                         ) : (
                           'Not set'
                         )}
@@ -470,13 +470,13 @@ export const TicketsPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleShareToChat(ticket)}
-                            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+                            className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200"
                           >
                             Chat
                           </button>
                           <button
                             onClick={() => setSelectedTicket(ticket)}
-                            className="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-xs font-semibold"
+                            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200/80"
                           >
                             Details
                           </button>
@@ -500,14 +500,14 @@ export const TicketsPage: React.FC = () => {
       >
         <form onSubmit={handleCreateTicket} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Select Property *
             </label>
             <select
               required
               value={newPropertyId}
               onChange={(e) => setNewPropertyId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-800 focus:outline-none focus:border-indigo-500"
             >
               {properties.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -518,19 +518,19 @@ export const TicketsPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Issue Title *</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Issue Title *</label>
             <input
               type="text"
               required
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="e.g. Garbage disposal humming but not spinning"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Detailed Description *
             </label>
             <textarea
@@ -539,12 +539,12 @@ export const TicketsPage: React.FC = () => {
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               placeholder="Describe what happened, where the issue is located, and any attempts to fix it..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Urgency Level
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -576,12 +576,12 @@ export const TicketsPage: React.FC = () => {
                   onClick={() => setNewUrgency(item.level)}
                   className={`p-2.5 rounded-xl text-left border transition-all ${
                     newUrgency === item.level
-                      ? 'bg-indigo-600/30 border-indigo-500 text-indigo-300 font-semibold ring-1 ring-indigo-500'
-                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                      ? 'bg-indigo-50 border-indigo-500 text-indigo-800 font-semibold ring-1 ring-indigo-500'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   <div className="text-xs font-bold">{item.label}</div>
-                  <div className="text-[10px] text-slate-400 leading-tight mt-0.5">{item.desc}</div>
+                  <div className="text-[10px] text-slate-500 leading-tight mt-0.5">{item.desc}</div>
                 </button>
               ))}
             </div>
@@ -590,18 +590,18 @@ export const TicketsPage: React.FC = () => {
           {/* Photo Upload Dropzone with Compression */}
           <PhotoUploadDropzone photos={newPhotos} onChange={setNewPhotos} maxPhotos={4} />
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={() => setIsNewModalOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isCreating || !newTitle.trim()}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors shadow-xs"
             >
               {isCreating ? 'Submitting...' : 'Submit Request'}
             </button>

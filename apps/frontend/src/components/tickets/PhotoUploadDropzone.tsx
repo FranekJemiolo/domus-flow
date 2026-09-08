@@ -77,10 +77,10 @@ export const PhotoUploadDropzone: React.FC<PhotoUploadDropzoneProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="block text-xs font-semibold text-slate-300">
+        <label className="block text-xs font-semibold text-slate-700">
           Photo Evidence ({photos.length}/{maxPhotos})
         </label>
-        <span className="text-[11px] text-slate-400">JPG, PNG, WebP up to 10MB</span>
+        <span className="text-[11px] text-slate-500">JPG, PNG, WebP up to 10MB</span>
       </div>
 
       {/* Upload Drop Area */}
@@ -92,15 +92,15 @@ export const PhotoUploadDropzone: React.FC<PhotoUploadDropzoneProps> = ({
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${
             dragActive
-              ? 'border-indigo-500 bg-indigo-500/10'
-              : 'border-slate-700 bg-slate-950/60 hover:border-slate-600'
+              ? 'border-indigo-500 bg-indigo-50/50'
+              : 'border-slate-300 bg-slate-50/70 hover:border-slate-400 hover:bg-slate-100/50'
           }`}
         >
           <div className="flex flex-col items-center justify-center gap-2">
             <span className="text-2xl">📸</span>
-            <div className="text-xs text-slate-300">
+            <div className="text-xs text-slate-600">
               <span
-                className="font-medium text-indigo-400 cursor-pointer"
+                className="font-medium text-indigo-600 hover:text-indigo-700 cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
                 Upload photos
@@ -111,14 +111,14 @@ export const PhotoUploadDropzone: React.FC<PhotoUploadDropzoneProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 transition-colors"
+                className="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-50 text-[11px] text-slate-700 border border-slate-200 shadow-xs transition-colors"
               >
                 Browse Files
               </button>
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-[11px] text-indigo-300 border border-indigo-500/30 transition-colors flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-[11px] text-indigo-700 border border-indigo-200/80 transition-colors flex items-center gap-1"
               >
                 <span>📷 Take Photo</span>
               </button>
@@ -146,8 +146,8 @@ export const PhotoUploadDropzone: React.FC<PhotoUploadDropzoneProps> = ({
 
       {/* Compression Status Indicator */}
       {isCompressing && (
-        <div className="flex items-center gap-2 text-xs text-indigo-400 bg-indigo-500/10 p-2 rounded-lg border border-indigo-500/20">
-          <div className="w-3.5 h-3.5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+        <div className="flex items-center gap-2 text-xs text-indigo-700 bg-indigo-50 p-2 rounded-lg border border-indigo-200">
+          <div className="w-3.5 h-3.5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
           <span>Compressing & optimizing photo...</span>
         </div>
       )}
@@ -158,13 +158,13 @@ export const PhotoUploadDropzone: React.FC<PhotoUploadDropzoneProps> = ({
           {photos.map((url, idx) => (
             <div
               key={idx}
-              className="group relative aspect-square rounded-xl overflow-hidden border border-slate-700 bg-slate-900"
+              className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-xs"
             >
               <img src={url} alt={`Attachment ${idx + 1}`} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => removePhoto(idx)}
-                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600/90 text-white text-xs flex items-center justify-center opacity-90 hover:opacity-100 shadow-md transition-opacity"
+                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-rose-600 text-white text-xs flex items-center justify-center opacity-90 hover:opacity-100 shadow-md transition-opacity"
                 title="Remove photo"
               >
                 ✕

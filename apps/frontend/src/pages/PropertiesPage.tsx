@@ -122,10 +122,10 @@ export const PropertiesPage: React.FC = () => {
       {/* ─── Header & Actions ─────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Property Portfolio
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Manage your buildings, units, and resident lease links
           </p>
         </div>
@@ -133,7 +133,7 @@ export const PropertiesPage: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsImportModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-xs"
             id="bulk-import-button"
           >
             <span>📄</span>
@@ -141,7 +141,7 @@ export const PropertiesPage: React.FC = () => {
           </button>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-glow transition-all flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm shadow-indigo-100 transition-all flex items-center gap-1.5"
             id="add-property-button"
           >
             <span>+</span>
@@ -153,7 +153,7 @@ export const PropertiesPage: React.FC = () => {
       {/* ─── Search Filter ───────────────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-xs">
             🔍
           </span>
           <input
@@ -161,10 +161,10 @@ export const PropertiesPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search properties by street or unit..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 shadow-xs"
           />
         </div>
-        <span className="text-xs text-slate-400">
+        <span className="text-xs text-slate-500">
           Showing {filteredProperties.length} of {properties.length} units
         </span>
       </div>
@@ -173,15 +173,15 @@ export const PropertiesPage: React.FC = () => {
       {isLoading ? (
         <div className="py-20 text-center text-slate-400 text-sm">Loading properties...</div>
       ) : filteredProperties.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800 p-8">
+        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200/80 p-8 shadow-xs">
           <span className="text-4xl">🏠</span>
-          <h2 className="text-base font-bold text-slate-200 mt-3">No Properties Found</h2>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          <h2 className="text-base font-bold text-slate-900 mt-3">No Properties Found</h2>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             Get started by adding your first unit or importing your portfolio via CSV.
           </p>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold"
+            className="mt-4 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs"
           >
             + Add First Property
           </button>
@@ -194,27 +194,27 @@ export const PropertiesPage: React.FC = () => {
             return (
               <div
                 key={property.id}
-                className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-white border border-slate-200/80 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col justify-between shadow-xs"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <span className="text-lg">🏢</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-indigo-300 border border-slate-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                       {property.unitNumber ? property.unitNumber : 'Main'}
                     </span>
                   </div>
-                  <h2 className="font-bold text-sm text-slate-100 leading-snug">
+                  <h2 className="font-bold text-sm text-slate-900 leading-snug">
                     {property.address}
                   </h2>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <div className="text-[11px] font-medium text-slate-400 mb-1">
+                    <div className="text-[11px] font-medium text-slate-500 mb-1">
                       Residents ({propertyTenants.length}):
                     </div>
                     {propertyTenants.length === 0 ? (
-                      <span className="text-xs text-slate-500 italic">
+                      <span className="text-xs text-slate-400 italic">
                         Vacant / No linked tenants
                       </span>
                     ) : (
@@ -222,7 +222,7 @@ export const PropertiesPage: React.FC = () => {
                         {propertyTenants.map((t) => (
                           <span
                             key={t.id}
-                            className="px-2 py-0.5 rounded-md text-[11px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
+                            className="px-2 py-0.5 rounded-md text-[11px] bg-teal-50 text-teal-700 border border-teal-200/80 font-medium"
                           >
                             {t.name}
                           </span>
@@ -234,7 +234,7 @@ export const PropertiesPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setInviteProperty(property)}
-                    className="px-2.5 py-1 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-[11px] font-semibold border border-indigo-500/30 transition-colors shrink-0"
+                    className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-semibold border border-indigo-200/80 transition-colors shrink-0"
                     title="Generate direct onboarding link for tenant"
                   >
                     🔑 Invite
@@ -254,7 +254,7 @@ export const PropertiesPage: React.FC = () => {
       >
         <form onSubmit={handleAddProperty} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Street Address *
             </label>
             <input
@@ -263,12 +263,12 @@ export const PropertiesPage: React.FC = () => {
               value={newAddress}
               onChange={(e) => setNewAddress(e.target.value)}
               placeholder="e.g. 120 West End Avenue"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
               Unit / Suite Number (Optional)
             </label>
             <input
@@ -276,7 +276,7 @@ export const PropertiesPage: React.FC = () => {
               value={newUnitNumber}
               onChange={(e) => setNewUnitNumber(e.target.value)}
               placeholder="e.g. Apt 4B or Suite 101"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
@@ -284,14 +284,14 @@ export const PropertiesPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving || !newAddress.trim()}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors shadow-xs"
             >
               {isSaving ? 'Adding...' : 'Add Property'}
             </button>
@@ -311,43 +311,47 @@ export const PropertiesPage: React.FC = () => {
         maxWidth="lg"
       >
         <div className="space-y-4">
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             Upload a CSV file containing columns for{' '}
-            <code className="text-indigo-300">Address</code> and optional{' '}
-            <code className="text-indigo-300">Unit</code>.
+            <code className="text-indigo-600 bg-indigo-50 px-1 py-0.5 rounded font-mono">
+              Address
+            </code>{' '}
+            and optional{' '}
+            <code className="text-indigo-600 bg-indigo-50 px-1 py-0.5 rounded font-mono">Unit</code>
+            .
           </p>
 
           <input
             type="file"
             accept=".csv,text/csv"
             onChange={handleFileChange}
-            className="block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer"
+            className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"
           />
 
           {csvError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+            <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
               ⚠️ {csvError}
             </div>
           )}
 
           {csvPreviewRows.length > 0 && (
             <div className="space-y-2">
-              <div className="text-xs font-semibold text-slate-300">
+              <div className="text-xs font-semibold text-slate-700">
                 Preview: {csvPreviewRows.length} properties detected
               </div>
-              <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950 p-2 text-xs">
+              <div className="max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50/70 p-2 text-xs">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="text-slate-500 border-b border-slate-800 pb-1">
+                    <tr className="text-slate-500 border-b border-slate-200 pb-1 font-semibold">
                       <th className="py-1">Address</th>
                       <th className="py-1">Unit</th>
                     </tr>
                   </thead>
                   <tbody>
                     {csvPreviewRows.map((row, idx) => (
-                      <tr key={idx} className="border-b border-slate-900 last:border-0">
-                        <td className="py-1 text-slate-200">{row.address}</td>
-                        <td className="py-1 text-slate-400">{row.unitNumber || 'N/A'}</td>
+                      <tr key={idx} className="border-b border-slate-100 last:border-0">
+                        <td className="py-1 text-slate-800">{row.address}</td>
+                        <td className="py-1 text-slate-500">{row.unitNumber || 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -363,7 +367,7 @@ export const PropertiesPage: React.FC = () => {
                 setIsImportModalOpen(false);
                 setCsvPreviewRows([]);
               }}
-              className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
             >
               Cancel
             </button>
@@ -371,7 +375,7 @@ export const PropertiesPage: React.FC = () => {
               type="button"
               onClick={handleConfirmBulkImport}
               disabled={isImporting || csvPreviewRows.length === 0}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold disabled:opacity-50 transition-colors shadow-xs"
             >
               {isImporting ? 'Importing...' : `Import ${csvPreviewRows.length} Properties`}
             </button>
@@ -394,30 +398,30 @@ export const PropertiesPage: React.FC = () => {
 
             return (
               <div className="space-y-4 text-xs">
-                <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl">
-                  <div className="font-semibold text-slate-200">{inviteProperty.address}</div>
-                  <div className="text-slate-400">Unit: {inviteProperty.unitNumber || 'Main'}</div>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="font-semibold text-slate-800">{inviteProperty.address}</div>
+                  <div className="text-slate-500">Unit: {inviteProperty.unitNumber || 'Main'}</div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-slate-600 mb-1 font-semibold">
                     Tenant Invite Code
                   </label>
-                  <div className="font-mono text-sm p-2.5 bg-slate-950 border border-indigo-500/40 rounded-xl text-indigo-300 font-bold flex justify-between items-center">
+                  <div className="font-mono text-sm p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl text-indigo-700 font-bold flex justify-between items-center">
                     <span>{inviteCode}</span>
-                    <span className="text-[10px] text-slate-500 font-sans">1-click access</span>
+                    <span className="text-[10px] text-indigo-500 font-sans">1-click access</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 mb-1 font-semibold">
+                  <label className="block text-slate-600 mb-1 font-semibold">
                     Direct Onboarding Link
                   </label>
                   <input
                     type="text"
                     readOnly
                     value={inviteUrl}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-300 font-mono text-[11px]"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-mono text-[11px]"
                   />
                 </div>
 
@@ -429,14 +433,14 @@ export const PropertiesPage: React.FC = () => {
                       setCopiedLink(true);
                       setTimeout(() => setCopiedLink(false), 2500);
                     }}
-                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold flex items-center gap-1.5 transition-colors"
+                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
                   >
                     <span>{copiedLink ? '✓ Copied to Clipboard!' : '📋 Copy Direct Link'}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setInviteProperty(null)}
-                    className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold"
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-colors"
                   >
                     Close
                   </button>

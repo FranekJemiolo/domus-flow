@@ -1,6 +1,7 @@
 /**
  * Responsive Application Layout
  * Features top navigation bar, quick role-switcher, and desktop sidebar / mobile bottom nav
+ * Tailored with a clean, airy, modern pastel aesthetic
  */
 
 import React, { useState } from 'react';
@@ -38,20 +39,20 @@ export const AppLayout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-800">
       {/* ─── Top Navigation Header ────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-8 py-3 flex items-center justify-between shadow-sm">
         {/* Brand */}
         <div className="flex items-center gap-3">
           <NavLink to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-xl shadow-glow group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-xl text-white shadow-md shadow-indigo-100 group-hover:scale-105 transition-transform">
               🏠
             </div>
             <div>
-              <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 to-violet-300 bg-clip-text text-transparent">
+              <span className="text-xl font-extrabold tracking-tight text-slate-900">
                 DomusFlow
               </span>
-              <span className="block text-[10px] text-slate-400 font-medium tracking-wider uppercase">
+              <span className="block text-[10px] text-slate-500 font-semibold tracking-wider uppercase">
                 Maintenance Hub
               </span>
             </div>
@@ -61,8 +62,8 @@ export const AppLayout: React.FC = () => {
           <span
             className={`ml-2 px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide border ${
               isDemo
-                ? 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30'
-                : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                ? 'bg-indigo-50 text-indigo-700 border-indigo-200/80 shadow-xs'
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 shadow-xs'
             }`}
           >
             {isDemo ? '🎭 Demo Mode' : '🔗 Live API'}
@@ -75,7 +76,7 @@ export const AppLayout: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setIsRoleMenuOpen(!isRoleMenuOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 transition-colors shadow-xs"
                 title="Switch Active Persona"
                 id="role-switch-button"
               >
@@ -96,49 +97,49 @@ export const AppLayout: React.FC = () => {
               </button>
 
               {isRoleMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl p-1.5 z-50 animate-scale-in">
-                  <div className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-slate-200 shadow-xl p-1.5 z-50 animate-scale-in">
+                  <div className="px-2.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     Select Demo Persona
                   </div>
                   <button
                     onClick={() => handleRoleSwitch(UserRole.LANDLORD)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between ${
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
                       role === UserRole.LANDLORD
-                        ? 'bg-indigo-600/30 text-indigo-300 font-semibold'
-                        : 'hover:bg-slate-800 text-slate-200'
+                        ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <div>
-                      <div className="font-medium">Sarah Mitchell</div>
-                      <div className="text-[10px] text-slate-400">Landlord / Owner</div>
+                      <div className="font-semibold">Sarah Mitchell</div>
+                      <div className="text-[10px] text-slate-500">Landlord / Owner</div>
                     </div>
                     {role === UserRole.LANDLORD && <span>✓</span>}
                   </button>
                   <button
                     onClick={() => handleRoleSwitch(UserRole.TENANT)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between ${
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
                       role === UserRole.TENANT
-                        ? 'bg-cyan-600/30 text-cyan-300 font-semibold'
-                        : 'hover:bg-slate-800 text-slate-200'
+                        ? 'bg-teal-50 text-teal-700 font-semibold'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <div>
-                      <div className="font-medium">James Chen</div>
-                      <div className="text-[10px] text-slate-400">Tenant (Unit 4B)</div>
+                      <div className="font-semibold">James Chen</div>
+                      <div className="text-[10px] text-slate-500">Tenant (Unit 4B)</div>
                     </div>
                     {role === UserRole.TENANT && <span>✓</span>}
                   </button>
                   <button
                     onClick={() => handleRoleSwitch(UserRole.CONTRACTOR)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between ${
+                    className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
                       role === UserRole.CONTRACTOR
-                        ? 'bg-amber-600/30 text-amber-300 font-semibold'
-                        : 'hover:bg-slate-800 text-slate-200'
+                        ? 'bg-amber-50 text-amber-800 font-semibold'
+                        : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
                     <div>
-                      <div className="font-medium">Mike Rodriguez</div>
-                      <div className="text-[10px] text-slate-400">Contractor / Plumber</div>
+                      <div className="font-semibold">Mike Rodriguez</div>
+                      <div className="text-[10px] text-slate-500">Contractor / Plumber</div>
                     </div>
                     {role === UserRole.CONTRACTOR && <span>✓</span>}
                   </button>
@@ -148,16 +149,14 @@ export const AppLayout: React.FC = () => {
           )}
 
           {/* User profile & Logout */}
-          <div className="flex items-center gap-2.5 pl-2 border-l border-slate-800">
+          <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200">
             <div className="hidden sm:block text-right">
-              <div className="text-xs font-semibold text-slate-200">
-                {currentUser?.name || 'Guest'}
-              </div>
+              <div className="text-xs font-bold text-slate-800">{currentUser?.name || 'Guest'}</div>
               {role && <RoleBadge role={role} />}
             </div>
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
               title="Sign Out"
               aria-label="Sign Out"
             >
@@ -177,8 +176,8 @@ export const AppLayout: React.FC = () => {
       {/* ─── Body: Sidebar + Main Content ────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 bg-slate-900/50 border-r border-slate-800/80 p-4 shrink-0">
-          <nav className="space-y-1.5 flex-1">
+        <aside className="hidden md:flex flex-col w-64 bg-white/90 border-r border-slate-200/80 p-4 shrink-0 shadow-xs">
+          <nav className="space-y-1 flex-1">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -186,8 +185,8 @@ export const AppLayout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-indigo-600 text-white shadow-glow'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                      ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`
                 }
               >
@@ -197,8 +196,8 @@ export const AppLayout: React.FC = () => {
             ))}
           </nav>
 
-          <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80 text-xs text-slate-400">
-            <div className="font-semibold text-slate-300 mb-1">DomusFlow v1.0</div>
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-500">
+            <div className="font-bold text-slate-700 mb-0.5">DomusFlow v1.0</div>
             <div>Cross-platform PWA ready</div>
           </div>
         </aside>
@@ -212,14 +211,14 @@ export const AppLayout: React.FC = () => {
       </div>
 
       {/* ─── Mobile Bottom Navigation Bar ─────────────────────────────────────── */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 flex items-center justify-around py-2 px-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around py-2 px-1 shadow-lg">
         {navLinks.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 py-1 px-3 rounded-lg text-xs font-medium transition-colors ${
-                isActive ? 'text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
+              `flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-xs font-medium transition-colors ${
+                isActive ? 'text-indigo-600 font-bold' : 'text-slate-500 hover:text-slate-800'
               }`
             }
           >

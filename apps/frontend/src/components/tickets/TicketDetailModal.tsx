@@ -90,17 +90,17 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
       <Modal isOpen={isOpen} onClose={onClose} title={ticket.title} maxWidth="2xl">
         <div className="space-y-5 print:text-black">
           {/* ─── Header Badges & ID ────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-800">
+          <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-200/80">
             <div className="flex items-center gap-2 flex-wrap">
               <UrgencyBadge urgency={ticket.urgency} />
               <StatusBadge status={ticket.status} />
               {ticket.costAcknowledged && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                   ✓ Cost Acknowledged
                 </span>
               )}
             </div>
-            <div className="text-xs text-slate-400 font-mono">
+            <div className="text-xs text-slate-500 font-mono">
               #{ticket.id.slice(0, 8)} •{' '}
               {new Date(ticket.createdAt).toLocaleDateString(undefined, {
                 month: 'short',
@@ -112,26 +112,26 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* ─── Property & Location Info ──────────────────────────────────────── */}
           {property && (
-            <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl flex items-center justify-between text-xs">
+            <div className="p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <span className="text-base">🏢</span>
                 <div>
-                  <div className="font-semibold text-slate-200">{property.address}</div>
+                  <div className="font-semibold text-slate-800">{property.address}</div>
                   {property.unitNumber && (
-                    <div className="text-slate-400">Unit: {property.unitNumber}</div>
+                    <div className="text-slate-500">Unit: {property.unitNumber}</div>
                   )}
                 </div>
               </div>
-              <span className="text-[11px] text-indigo-400 font-medium">Property Details</span>
+              <span className="text-[11px] text-indigo-600 font-medium">Property Details</span>
             </div>
           )}
 
           {/* ─── Description ──────────────────────────────────────────────────── */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Issue Description
             </h3>
-            <p className="text-sm text-slate-200 bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 whitespace-pre-wrap leading-relaxed">
+            <p className="text-sm text-slate-800 bg-slate-50/70 p-3.5 rounded-xl border border-slate-200/80 whitespace-pre-wrap leading-relaxed">
               {ticket.description}
             </p>
           </div>
@@ -140,7 +140,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           {ticket.photoUrls && ticket.photoUrls.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Photos ({ticket.photoUrls.length})
                 </h3>
                 <span className="text-[11px] text-slate-500">Click to enlarge</span>
@@ -151,14 +151,14 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => setSelectedPhoto(url)}
-                    className="group relative aspect-square rounded-xl overflow-hidden border border-slate-800 bg-slate-950 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     <img
                       src={url}
                       alt={`Evidence ${idx + 1}`}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
+                    <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-medium">
                       🔍 Enlarge
                     </div>
                   </button>
@@ -168,9 +168,9 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           )}
 
           {/* ─── ETA & Scheduling Section ─────────────────────────────────────── */}
-          <div className="p-3.5 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
+          <div className="p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-xl space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                 <span>⏱️</span>
                 <span>Estimated Arrival / Completion (ETA)</span>
               </span>
@@ -181,7 +181,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                     setEtaValue(ticket.eta || '');
                     setEditingEta(true);
                   }}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 font-medium"
+                  className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold"
                 >
                   {ticket.eta ? 'Edit ETA' : '+ Set ETA'}
                 </button>
@@ -195,30 +195,30 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   value={etaValue}
                   onChange={(e) => setEtaValue(e.target.value)}
                   placeholder="e.g. Tomorrow at 10:00 AM, or 2026-09-08 14:00"
-                  className="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                  className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
                 />
                 <button
                   type="button"
                   disabled={isUpdating}
                   onClick={handleSaveEta}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingEta(false)}
-                  className="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-400 text-xs"
+                  className="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs hover:bg-slate-200"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
-              <div className="text-xs text-slate-300">
+              <div className="text-xs text-slate-700">
                 {ticket.eta ? (
-                  <span className="font-semibold text-indigo-300">{ticket.eta}</span>
+                  <span className="font-semibold text-indigo-700">{ticket.eta}</span>
                 ) : (
-                  <span className="text-slate-500 italic">No ETA scheduled yet</span>
+                  <span className="text-slate-400 italic">No ETA scheduled yet</span>
                 )}
               </div>
             )}
@@ -226,7 +226,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* ─── Contractor Assignment (Landlord) or Contractor Info ───────────── */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
               Assigned Contractor
             </h3>
             {role === UserRole.LANDLORD ? (
@@ -234,7 +234,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 value={ticket.contractorId || ''}
                 disabled={isUpdating}
                 onChange={(e) => onAssignContractor(ticket.id, e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
               >
                 <option value="">Unassigned — Select Contractor</option>
                 {contractors.map((c) => (
@@ -244,19 +244,19 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 ))}
               </select>
             ) : (
-              <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-xs text-slate-300">
+              <div className="p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl text-xs text-slate-700">
                 {contractor ? (
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-semibold text-slate-200">{contractor.name}</span>
+                      <span className="font-semibold text-slate-900">{contractor.name}</span>
                       <span className="text-slate-500 ml-2">({contractor.email})</span>
                     </div>
-                    <span className="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-[10px] font-semibold border border-sky-500/20">
+                    <span className="px-2 py-0.5 rounded bg-sky-50 text-sky-700 text-[10px] font-semibold border border-sky-200">
                       Contractor
                     </span>
                   </div>
                 ) : (
-                  <span className="text-slate-500 italic">No contractor assigned yet.</span>
+                  <span className="text-slate-400 italic">No contractor assigned yet.</span>
                 )}
               </div>
             )}
@@ -264,10 +264,10 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* ─── Cost Acknowledgment Section ──────────────────────────────────── */}
           {(role === UserRole.LANDLORD || role === UserRole.CONTRACTOR) && (
-            <div className="flex items-center justify-between p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-xs">
+            <div className="flex items-center justify-between p-3 bg-slate-50/80 border border-slate-200/80 rounded-xl text-xs">
               <div>
-                <div className="font-semibold text-slate-200">Cost Authorization</div>
-                <div className="text-[11px] text-slate-400">
+                <div className="font-semibold text-slate-800">Cost Authorization</div>
+                <div className="text-[11px] text-slate-500">
                   Acknowledges contractor quote and authorized repair expenses
                 </div>
               </div>
@@ -277,8 +277,8 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                 onClick={handleToggleCost}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                   ticket.costAcknowledged
-                    ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-600/50'
-                    : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
                 }`}
               >
                 {ticket.costAcknowledged ? '✓ Acknowledged' : 'Acknowledge Cost'}
@@ -288,7 +288,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
           {/* ─── Status Workflow Action Bar ───────────────────────────────────── */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
               Workflow Status Transition
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -297,7 +297,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   type="button"
                   disabled={isUpdating}
                   onClick={() => handleStatusChange(TicketStatus.REPORTED)}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 text-xs font-semibold disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 text-xs font-semibold disabled:opacity-40 transition-colors"
                 >
                   ↩ Mark Reported
                 </button>
@@ -307,7 +307,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   type="button"
                   disabled={isUpdating}
                   onClick={() => handleStatusChange(TicketStatus.SCHEDULED)}
-                  className="px-3 py-1.5 rounded-lg bg-sky-600/20 hover:bg-sky-600/40 text-sky-300 border border-sky-500/30 text-xs font-semibold disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 text-xs font-semibold disabled:opacity-40 transition-colors"
                 >
                   📅 Mark Scheduled
                 </button>
@@ -317,7 +317,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   type="button"
                   disabled={isUpdating}
                   onClick={() => handleStatusChange(TicketStatus.IN_PROGRESS)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600/20 hover:bg-amber-600/40 text-amber-300 border border-amber-500/30 text-xs font-semibold disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 text-xs font-semibold disabled:opacity-40 transition-colors"
                 >
                   🔧 Mark In Progress
                 </button>
@@ -327,7 +327,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
                   type="button"
                   disabled={isUpdating}
                   onClick={() => handleStatusChange(TicketStatus.RESOLVED)}
-                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold disabled:opacity-40 flex items-center gap-1 shadow-sm"
+                  className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold disabled:opacity-40 flex items-center gap-1 shadow-xs transition-colors"
                 >
                   <span>✓</span>
                   <span>Mark Resolved</span>
@@ -337,12 +337,12 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           </div>
 
           {/* ─── Bottom Action Bar ────────────────────────────────────────────── */}
-          <div className="pt-4 border-t border-slate-800 flex items-center justify-between flex-wrap gap-2">
+          <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => onShareToChat(ticket)}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors"
               >
                 <span>💬</span>
                 <span>Discuss in Chat</span>
@@ -350,7 +350,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 title="Print ticket work order summary"
               >
                 <span>🖨️</span>
@@ -361,7 +361,7 @@ export const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold"
+              className="px-4 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-colors"
             >
               Close
             </button>
