@@ -16,6 +16,19 @@ enum UserRole {
   LANDLORD
   TENANT
   CONTRACTOR
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  APPLE
+  FACEBOOK
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
 }
 
 enum TicketUrgency {
@@ -40,24 +53,44 @@ enum MessageThreadType {
 // ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
-  id               String   @id @default(uuid())
+  id               String       @id @default(uuid())
   role             UserRole
   name             String
-  email            String   @unique
-  passwordHash     String
-  inviteCode       String   @unique
+  email            String       @unique
+  passwordHash     String?
+  inviteCode       String       @unique
   linkedPropertyId String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  authProvider     AuthProvider @default(LOCAL)
+  authProviderId   String?
+  avatarUrl        String?
+  status           UserStatus   @default(ACTIVE)
+  lastLoginAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   // Relations
-  ownedProperties  Property[]  @relation("LandlordProperties")
-  linkedProperty   Property?   @relation("PropertyTenants", fields: [linkedPropertyId], references: [id])
-  tenantTickets    Ticket[]    @relation("TicketTenant")
-  contractorTickets Ticket[]   @relation("TicketContractor")
-  sentMessages     Message[]   @relation("MessageSender")
+  ownedProperties   Property[]  @relation("LandlordProperties")
+  linkedProperty    Property?   @relation("PropertyTenants", fields: [linkedPropertyId], references: [id])
+  tenantTickets     Ticket[]    @relation("TicketTenant")
+  contractorTickets Ticket[]    @relation("TicketContractor")
+  sentMessages      Message[]   @relation("MessageSender")
+  logs              UserLog[]   @relation("UserLogs")
 
   @@map("users")
+}
+
+model UserLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  ipAddress String?
+  userAgent String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation("UserLogs", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_logs")
 }
 
 model Property {

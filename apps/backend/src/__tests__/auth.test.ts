@@ -184,3 +184,84 @@ describe('GET /api/auth/me', () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe('POST /api/auth/sso', () => {
+  beforeEach(async () => {
+    await prisma.userLog.deleteMany();
+    await prisma.user.deleteMany();
+  });
+
+  afterAll(async () => {
+    await prisma.userLog.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.$disconnect();
+  });
+
+  it('provisions a new user when signing in with Google SSO', async () => {
+    const res = await request(app).post('/api/auth/sso').send({
+      provider: 'GOOGLE',
+      email: 'sso.google@example.com',
+      name: 'Google User',
+      role: 'TENANT',
+      avatarUrl: 'https://lh3.googleusercontent.com/a/test',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.token).toBeDefined();
+    expect(res.body.data.user.email).toBe('sso.google@example.com');
+    expect(res.body.data.user.authProvider).toBe('GOOGLE');
+    expect(res.body.data.user.status).toBe('ACTIVE');
+
+    // Confirm audit logs were recorded
+    const logs = await prisma.userLog.findMany({
+      where: { userId: res.body.data.user.id },
+    });
+    expect(logs.some((l) => l.action === 'REGISTER_SSO_GOOGLE')).toBe(true);
+    expect(logs.some((l) => l.action === 'LOGIN_SSO_GOOGLE')).toBe(true);
+  });
+
+  it('logs in an existing user with Apple SSO', async () => {
+    // First register via Apple SSO
+    await request(app).post('/api/auth/sso').send({
+      provider: 'APPLE',
+      email: 'sso.apple@example.com',
+      name: 'Apple User',
+      role: 'LANDLORD',
+    });
+
+    // Login again with Apple SSO
+    const res = await request(app).post('/api/auth/sso').send({
+      provider: 'APPLE',
+      email: 'sso.apple@example.com',
+      name: 'Apple User',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.user.email).toBe('sso.apple@example.com');
+    expect(res.body.data.user.role).toBe('LANDLORD');
+  });
+
+  it('rejects suspended accounts from SSO', async () => {
+    // Create suspended user
+    const user = await prisma.user.create({
+      data: {
+        name: 'Suspended User',
+        email: 'suspended@example.com',
+        role: 'TENANT',
+        inviteCode: 'SUSP-01',
+        authProvider: 'FACEBOOK',
+        status: 'SUSPENDED',
+      },
+    });
+
+    const res = await request(app).post('/api/auth/sso').send({
+      provider: 'FACEBOOK',
+      email: user.email,
+      name: user.name,
+    });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toContain('suspended');
+  });
+});

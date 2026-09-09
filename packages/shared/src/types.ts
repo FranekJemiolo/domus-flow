@@ -13,6 +13,19 @@ export enum UserRole {
   LANDLORD = 'LANDLORD',
   TENANT = 'TENANT',
   CONTRACTOR = 'CONTRACTOR',
+  ADMIN = 'ADMIN',
+}
+
+export enum AuthProvider {
+  LOCAL = 'LOCAL',
+  GOOGLE = 'GOOGLE',
+  APPLE = 'APPLE',
+  FACEBOOK = 'FACEBOOK',
+}
+
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
 }
 
 export enum TicketUrgency {
@@ -43,8 +56,24 @@ export interface User {
   email: string;
   inviteCode: string;
   linkedPropertyId: string | null;
+  authProvider?: AuthProvider;
+  authProviderId?: string | null;
+  avatarUrl?: string | null;
+  status?: UserStatus;
+  lastLoginAt?: string | null;
   createdAt: string; // ISO date string
   updatedAt: string;
+}
+
+export interface UserLog {
+  id: string;
+  userId: string | null;
+  action: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  details?: Record<string, unknown> | null;
+  createdAt: string;
+  user?: Pick<User, 'id' | 'name' | 'email' | 'role'> | null;
 }
 
 export interface Property {
@@ -104,6 +133,32 @@ export interface CreateUserDto {
   email: string;
   password: string;
   inviteCode?: string;
+}
+
+export interface SsoLoginDto {
+  provider: AuthProvider;
+  email: string;
+  name: string;
+  token?: string;
+  authProviderId?: string;
+  avatarUrl?: string;
+  role?: UserRole;
+  inviteCode?: string;
+}
+
+export interface UpdateUserDto {
+  name?: string;
+  email?: string;
+  role?: UserRole;
+  status?: UserStatus;
+  linkedPropertyId?: string | null;
+}
+
+export interface UserQueryFilters {
+  search?: string;
+  role?: UserRole;
+  status?: UserStatus;
+  authProvider?: AuthProvider;
 }
 
 export interface LoginDto {

@@ -9,7 +9,10 @@ import {
   Property,
   Ticket,
   Message,
+  UserLog,
   UserRole,
+  AuthProvider,
+  UserStatus,
   TicketUrgency,
   TicketStatus,
   MessageThreadType,
@@ -20,6 +23,7 @@ export class DomusFlowDB extends Dexie {
   properties!: Table<Property, string>;
   tickets!: Table<Ticket, string>;
   messages!: Table<Message, string>;
+  userLogs!: Table<UserLog, string>;
 
   constructor() {
     super('domus_flow_demo_db');
@@ -29,6 +33,14 @@ export class DomusFlowDB extends Dexie {
       properties: 'id, landlordId, address',
       tickets: 'id, propertyId, tenantId, contractorId, status, urgency, createdAt',
       messages: 'id, threadType, senderId, receiverId, linkedTicketId, timestamp',
+    });
+
+    this.version(2).stores({
+      users: 'id, email, role, inviteCode, linkedPropertyId, authProvider, status, createdAt',
+      properties: 'id, landlordId, address',
+      tickets: 'id, propertyId, tenantId, contractorId, status, urgency, createdAt',
+      messages: 'id, threadType, senderId, receiverId, linkedTicketId, timestamp',
+      userLogs: 'id, userId, action, createdAt',
     });
   }
 }
@@ -45,6 +57,9 @@ export const DEMO_USERS: Record<'landlord' | 'tenantA' | 'tenantB' | 'contractor
     role: UserRole.LANDLORD,
     inviteCode: 'LANDLORD-01',
     linkedPropertyId: null,
+    authProvider: AuthProvider.LOCAL,
+    status: UserStatus.ACTIVE,
+    lastLoginAt: '2026-09-08T09:00:00.000Z',
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   },
@@ -55,6 +70,11 @@ export const DEMO_USERS: Record<'landlord' | 'tenantA' | 'tenantB' | 'contractor
     role: UserRole.TENANT,
     inviteCode: 'UNIT4B-2026',
     linkedPropertyId: 'prop-01',
+    authProvider: AuthProvider.GOOGLE,
+    avatarUrl:
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+    status: UserStatus.ACTIVE,
+    lastLoginAt: '2026-09-07T14:30:00.000Z',
     createdAt: '2026-01-10T00:00:00.000Z',
     updatedAt: '2026-01-10T00:00:00.000Z',
   },
@@ -65,6 +85,9 @@ export const DEMO_USERS: Record<'landlord' | 'tenantA' | 'tenantB' | 'contractor
     role: UserRole.TENANT,
     inviteCode: 'UNIT2A-2026',
     linkedPropertyId: 'prop-02',
+    authProvider: AuthProvider.APPLE,
+    status: UserStatus.ACTIVE,
+    lastLoginAt: '2026-09-06T18:15:00.000Z',
     createdAt: '2026-01-15T00:00:00.000Z',
     updatedAt: '2026-01-15T00:00:00.000Z',
   },
@@ -75,10 +98,52 @@ export const DEMO_USERS: Record<'landlord' | 'tenantA' | 'tenantB' | 'contractor
     role: UserRole.CONTRACTOR,
     inviteCode: 'CONTRACTOR-01',
     linkedPropertyId: null,
+    authProvider: AuthProvider.LOCAL,
+    status: UserStatus.ACTIVE,
+    lastLoginAt: '2026-09-08T11:45:00.000Z',
     createdAt: '2026-01-05T00:00:00.000Z',
     updatedAt: '2026-01-05T00:00:00.000Z',
   },
 };
+
+export const DEMO_USER_LOGS: UserLog[] = [
+  {
+    id: 'log-01',
+    userId: 'u-landlord-01',
+    action: 'LOGIN_LOCAL',
+    ipAddress: '192.168.1.100',
+    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+    details: { method: 'Email/Password' },
+    createdAt: '2026-09-08T09:00:00.000Z',
+  },
+  {
+    id: 'log-02',
+    userId: 'u-tenant-01',
+    action: 'LOGIN_SSO_GOOGLE',
+    ipAddress: '192.168.1.105',
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)',
+    details: { provider: 'GOOGLE', account: 'james.chen@gmail.com' },
+    createdAt: '2026-09-07T14:30:00.000Z',
+  },
+  {
+    id: 'log-03',
+    userId: 'u-tenant-02',
+    action: 'LOGIN_SSO_APPLE',
+    ipAddress: '192.168.1.112',
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)',
+    details: { provider: 'APPLE', account: 'priya.sharma@icloud.com' },
+    createdAt: '2026-09-06T18:15:00.000Z',
+  },
+  {
+    id: 'log-04',
+    userId: 'u-contractor-01',
+    action: 'LOGIN_LOCAL',
+    ipAddress: '192.168.1.130',
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    details: { method: 'Invite Code / Auth' },
+    createdAt: '2026-09-08T11:45:00.000Z',
+  },
+];
 
 export const DEMO_PROPERTIES: Property[] = [
   {
@@ -217,6 +282,12 @@ export async function seedDexieIfEmpty(): Promise<void> {
   const userCount = await db.users.count();
   if (userCount === 0) {
     await forceReseedDexie();
+  } else {
+    // Check if userLogs table is empty after migration
+    const logCount = await db.userLogs.count();
+    if (logCount === 0) {
+      await db.userLogs.bulkAdd(DEMO_USER_LOGS);
+    }
   }
 }
 
@@ -224,15 +295,25 @@ export async function seedDexieIfEmpty(): Promise<void> {
  * Resets and reseeds the Dexie database with fresh demo data
  */
 export async function forceReseedDexie(): Promise<void> {
-  await db.transaction('rw', db.users, db.properties, db.tickets, db.messages, async () => {
-    await db.users.clear();
-    await db.properties.clear();
-    await db.tickets.clear();
-    await db.messages.clear();
+  await db.transaction(
+    'rw',
+    db.users,
+    db.properties,
+    db.tickets,
+    db.messages,
+    db.userLogs,
+    async () => {
+      await db.users.clear();
+      await db.properties.clear();
+      await db.tickets.clear();
+      await db.messages.clear();
+      await db.userLogs.clear();
 
-    await db.users.bulkAdd(Object.values(DEMO_USERS));
-    await db.properties.bulkAdd(DEMO_PROPERTIES);
-    await db.tickets.bulkAdd(DEMO_TICKETS);
-    await db.messages.bulkAdd(DEMO_MESSAGES);
-  });
+      await db.users.bulkAdd(Object.values(DEMO_USERS));
+      await db.properties.bulkAdd(DEMO_PROPERTIES);
+      await db.tickets.bulkAdd(DEMO_TICKETS);
+      await db.messages.bulkAdd(DEMO_MESSAGES);
+      await db.userLogs.bulkAdd(DEMO_USER_LOGS);
+    }
+  );
 }

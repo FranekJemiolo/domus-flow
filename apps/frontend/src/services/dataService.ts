@@ -9,7 +9,13 @@ import {
   Property,
   Ticket,
   Message,
+  UserLog,
   UserRole,
+  AuthProvider,
+  UserStatus,
+  CreateUserDto,
+  UpdateUserDto,
+  UserQueryFilters,
   TicketStatus,
   TicketUrgency,
   MessageThreadType,
@@ -69,13 +75,160 @@ export const authService = {
       if (!user) {
         throw new Error('User not found with this email in Demo Mode');
       }
-      setStoredDemoUser(user);
-      return user;
+      if (user.status === UserStatus.SUSPENDED) {
+        throw new Error('This account has been suspended. Please contact management.');
+      }
+      const updated = { ...user, lastLoginAt: new Date().toISOString() };
+      await db.users.put(updated);
+      await db.userLogs.add({
+        id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        userId: user.id,
+        action: 'LOGIN_LOCAL',
+        ipAddress: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        details: { method: 'Email/Password (Demo)' },
+        createdAt: new Date().toISOString(),
+      });
+      setStoredDemoUser(updated);
+      return updated;
     }
 
     const res = await apiClient.post<ApiResponse<{ token: string; user: User }>>('/auth/login', {
       email,
       password: _password,
+    });
+    localStorage.setItem('domus_flow_token', res.data.data.token);
+    localStorage.setItem('domus_flow_user', JSON.stringify(res.data.data.user));
+    return res.data.data.user;
+  },
+
+  async register(dto: CreateUserDto): Promise<User> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const existing = await db.users.where('email').equalsIgnoreCase(dto.email).first();
+      if (existing) {
+        throw new Error('Email already registered in Demo Mode');
+      }
+      const code =
+        dto.inviteCode ||
+        `${dto.name.toUpperCase().replace(/\s/g, '')}-${Date.now().toString().slice(-4)}`;
+      const newUser: User = {
+        id: `u-${uuidv4().substring(0, 8)}`,
+        name: dto.name,
+        email: dto.email,
+        role: dto.role,
+        inviteCode: code,
+        linkedPropertyId: null,
+        authProvider: AuthProvider.LOCAL,
+        status: UserStatus.ACTIVE,
+        lastLoginAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await db.users.add(newUser);
+      await db.userLogs.add({
+        id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        userId: newUser.id,
+        action: 'REGISTER',
+        ipAddress: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        details: { role: newUser.role, provider: 'LOCAL' },
+        createdAt: new Date().toISOString(),
+      });
+      setStoredDemoUser(newUser);
+      return newUser;
+    }
+
+    const res = await apiClient.post<ApiResponse<{ token: string; user: User }>>(
+      '/auth/register',
+      dto
+    );
+    localStorage.setItem('domus_flow_token', res.data.data.token);
+    localStorage.setItem('domus_flow_user', JSON.stringify(res.data.data.user));
+    return res.data.data.user;
+  },
+
+  async loginWithSso(
+    provider: AuthProvider,
+    profile: {
+      email: string;
+      name: string;
+      role?: UserRole;
+      avatarUrl?: string;
+      inviteCode?: string;
+    }
+  ): Promise<User> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      let user = await db.users.where('email').equalsIgnoreCase(profile.email).first();
+      const now = new Date().toISOString();
+
+      if (user) {
+        if (user.status === UserStatus.SUSPENDED) {
+          throw new Error('This account has been suspended. Please contact management.');
+        }
+        user = {
+          ...user,
+          lastLoginAt: now,
+          authProvider: provider,
+          avatarUrl: profile.avatarUrl || user.avatarUrl,
+        };
+        await db.users.put(user);
+        await db.userLogs.add({
+          id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+          userId: user.id,
+          action: `LOGIN_SSO_${provider}`,
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { provider, email: profile.email },
+          createdAt: now,
+        });
+      } else {
+        const code =
+          profile.inviteCode ||
+          `${profile.name.toUpperCase().replace(/\s/g, '')}-${Date.now().toString().slice(-4)}`;
+        user = {
+          id: `u-${uuidv4().substring(0, 8)}`,
+          name: profile.name,
+          email: profile.email,
+          role: profile.role || UserRole.TENANT,
+          inviteCode: code,
+          linkedPropertyId: null,
+          authProvider: provider,
+          avatarUrl: profile.avatarUrl || null,
+          status: UserStatus.ACTIVE,
+          lastLoginAt: now,
+          createdAt: now,
+          updatedAt: now,
+        };
+        await db.users.add(user);
+        await db.userLogs.add({
+          id: `log-${Date.now()}-reg`,
+          userId: user.id,
+          action: `REGISTER_SSO_${provider}`,
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { provider, role: user.role },
+          createdAt: now,
+        });
+        await db.userLogs.add({
+          id: `log-${Date.now()}-login`,
+          userId: user.id,
+          action: `LOGIN_SSO_${provider}`,
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { provider, email: user.email },
+          createdAt: now,
+        });
+      }
+
+      setStoredDemoUser(user);
+      return user;
+    }
+
+    const res = await apiClient.post<ApiResponse<{ token: string; user: User }>>('/auth/sso', {
+      provider,
+      ...profile,
     });
     localStorage.setItem('domus_flow_token', res.data.data.token);
     localStorage.setItem('domus_flow_user', JSON.stringify(res.data.data.user));
@@ -91,6 +244,9 @@ export const authService = {
       if (!user) {
         throw new Error('Invalid invite code. Try UNIT4B-2026 or CONTRACTOR-01');
       }
+      if (user.status === UserStatus.SUSPENDED) {
+        throw new Error('This account has been suspended. Please contact management.');
+      }
       setStoredDemoUser(user);
       return user;
     }
@@ -104,6 +260,7 @@ export const authService = {
     await seedDexieIfEmpty();
     let user: User;
     switch (role) {
+      case UserRole.ADMIN:
       case UserRole.LANDLORD:
         user = DEMO_USERS.landlord;
         break;
@@ -475,13 +632,183 @@ export const dashboardService = {
 // ─── USERS SERVICE ───────────────────────────────────────────────────────────
 
 export const userService = {
-  async getAll(): Promise<User[]> {
+  async getAll(filters?: UserQueryFilters): Promise<User[]> {
     if (isDemoMode()) {
       await seedDexieIfEmpty();
-      return db.users.toArray();
+      let users = await db.users.toArray();
+
+      if (filters?.role) {
+        users = users.filter((u) => u.role === filters.role);
+      }
+      if (filters?.status) {
+        users = users.filter((u) => u.status === filters.status);
+      }
+      if (filters?.authProvider) {
+        users = users.filter((u) => u.authProvider === filters.authProvider);
+      }
+      if (filters?.search && filters.search.trim()) {
+        const q = filters.search.trim().toLowerCase();
+        users = users.filter(
+          (u) =>
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            u.inviteCode.toLowerCase().includes(q)
+        );
+      }
+
+      return users;
     }
-    const res = await apiClient.get<ApiResponse<User[]>>('/users');
+
+    const res = await apiClient.get<ApiResponse<User[]>>('/users', {
+      params: filters,
+    });
     return res.data.data;
+  },
+
+  async getById(id: string): Promise<User | null> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const user = await db.users.get(id);
+      return user || null;
+    }
+    const res = await apiClient.get<ApiResponse<User>>(`/users/${id}`);
+    return res.data.data;
+  },
+
+  async create(dto: CreateUserDto): Promise<User> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const code =
+        dto.inviteCode ||
+        `${dto.name.toUpperCase().replace(/\s/g, '')}-${Date.now().toString().slice(-4)}`;
+      const newUser: User = {
+        id: `u-${uuidv4().substring(0, 8)}`,
+        name: dto.name,
+        email: dto.email,
+        role: dto.role,
+        inviteCode: code,
+        linkedPropertyId: null,
+        authProvider: AuthProvider.LOCAL,
+        status: UserStatus.ACTIVE,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await db.users.add(newUser);
+      await db.userLogs.add({
+        id: `log-${Date.now()}`,
+        userId: newUser.id,
+        action: 'CREATE_USER',
+        ipAddress: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        details: { role: newUser.role, name: newUser.name, email: newUser.email },
+        createdAt: new Date().toISOString(),
+      });
+      return newUser;
+    }
+
+    const res = await apiClient.post<ApiResponse<User>>('/auth/register', dto);
+    return res.data.data;
+  },
+
+  async update(id: string, data: UpdateUserDto): Promise<User> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const user = await db.users.get(id);
+      if (!user) throw new Error('User not found');
+
+      const updated: User = {
+        ...user,
+        ...data,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await db.users.put(updated);
+
+      if (data.status && data.status !== user.status) {
+        await db.userLogs.add({
+          id: `log-${Date.now()}-status`,
+          userId: user.id,
+          action: 'STATUS_CHANGE',
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { previousStatus: user.status, newStatus: data.status },
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      if (data.role && data.role !== user.role) {
+        await db.userLogs.add({
+          id: `log-${Date.now()}-role`,
+          userId: user.id,
+          action: 'ROLE_CHANGE',
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { previousRole: user.role, newRole: data.role },
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      return updated;
+    }
+
+    const res = await apiClient.patch<ApiResponse<User>>(`/users/${id}`, data);
+    return res.data.data;
+  },
+
+  async delete(id: string): Promise<void> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      const user = await db.users.get(id);
+      if (user) {
+        await db.userLogs.add({
+          id: `log-${Date.now()}-del`,
+          userId: user.id,
+          action: 'DELETE_USER',
+          ipAddress: '127.0.0.1',
+          userAgent: navigator.userAgent,
+          details: { email: user.email },
+          createdAt: new Date().toISOString(),
+        });
+        await db.users.delete(id);
+      }
+      return;
+    }
+
+    await apiClient.delete(`/users/${id}`);
+  },
+
+  async getLogs(userId?: string): Promise<UserLog[]> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      let logs = await db.userLogs.toArray();
+      if (userId) {
+        logs = logs.filter((l) => l.userId === userId);
+      }
+      return logs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    const url = userId ? `/users/${userId}/logs` : '/users/logs/all';
+    const res = await apiClient.get<ApiResponse<UserLog[]>>(url);
+    return res.data.data;
+  },
+
+  async createLog(
+    action: string,
+    details?: Record<string, unknown>,
+    userId?: string
+  ): Promise<void> {
+    if (isDemoMode()) {
+      await seedDexieIfEmpty();
+      await db.userLogs.add({
+        id: `log-${Date.now()}`,
+        userId: userId || null,
+        action,
+        ipAddress: '127.0.0.1',
+        userAgent: navigator.userAgent,
+        details,
+        createdAt: new Date().toISOString(),
+      });
+    }
   },
 
   async getContractors(): Promise<User[]> {

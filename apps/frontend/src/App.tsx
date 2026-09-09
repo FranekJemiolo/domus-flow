@@ -12,6 +12,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { PropertiesPage } from './pages/PropertiesPage';
 import { TicketsPage } from './pages/TicketsPage';
 import { MessagesPage } from './pages/MessagesPage';
+import { UsersPage } from './pages/UsersPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { UserRole } from '@domus-flow/shared';
 
@@ -36,7 +37,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const HomeRedirect: React.FC = () => {
   const { role } = useAuth();
-  if (role === UserRole.LANDLORD) {
+  if (role === UserRole.LANDLORD || role === UserRole.ADMIN) {
     return <Navigate to="/dashboard" replace />;
   }
   return <Navigate to="/tickets" replace />;
@@ -61,6 +62,7 @@ export const App: React.FC = () => {
             <Route path="properties" element={<PropertiesPage />} />
             <Route path="tickets" element={<TicketsPage />} />
             <Route path="messages" element={<MessagesPage />} />
+            <Route path="users" element={<UsersPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 

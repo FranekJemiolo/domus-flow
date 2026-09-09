@@ -11,7 +11,7 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { User, UserRole } from '@domus-flow/shared';
+import { User, UserRole, AuthProvider as SsoAuthProvider, CreateUserDto } from '@domus-flow/shared';
 import { authService, isDemoMode, setDemoModeOverride } from '../services/dataService';
 import { DEMO_USERS, seedDexieIfEmpty } from '../services/db';
 
@@ -21,6 +21,17 @@ interface AuthContextType {
   isDemo: boolean;
   isLoading: boolean;
   login: (email: string, password?: string) => Promise<void>;
+  register: (dto: CreateUserDto) => Promise<void>;
+  loginWithSso: (
+    provider: SsoAuthProvider,
+    profile: {
+      email: string;
+      name: string;
+      role?: UserRole;
+      avatarUrl?: string;
+      inviteCode?: string;
+    }
+  ) => Promise<void>;
   loginWithInvite: (inviteCode: string) => Promise<void>;
   switchRole: (role: UserRole) => Promise<void>;
   logout: () => Promise<void>;
@@ -73,6 +84,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const register = async (dto: CreateUserDto) => {
+    setIsLoading(true);
+    try {
+      const user = await authService.register(dto);
+      setCurrentUser(user);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithSso = async (
+    provider: SsoAuthProvider,
+    profile: {
+      email: string;
+      name: string;
+      role?: UserRole;
+      avatarUrl?: string;
+      inviteCode?: string;
+    }
+  ) => {
+    setIsLoading(true);
+    try {
+      const user = await authService.loginWithSso(provider, profile);
+      setCurrentUser(user);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const loginWithInvite = async (inviteCode: string) => {
     setIsLoading(true);
     try {
@@ -110,6 +150,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isDemo: demoActive,
         isLoading,
         login,
+        register,
+        loginWithSso,
         loginWithInvite,
         switchRole,
         logout,

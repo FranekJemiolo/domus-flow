@@ -27,8 +27,13 @@ export const AppLayout: React.FC = () => {
   };
 
   const navLinks = [
-    ...(role === UserRole.LANDLORD ? [{ to: '/dashboard', label: 'Dashboard', icon: '📊' }] : []),
-    ...(role === UserRole.LANDLORD ? [{ to: '/properties', label: 'Properties', icon: '🏠' }] : []),
+    ...(role === UserRole.LANDLORD || role === UserRole.ADMIN
+      ? [
+          { to: '/dashboard', label: 'Dashboard', icon: '📊' },
+          { to: '/properties', label: 'Properties', icon: '🏠' },
+          { to: '/users', label: 'Users', icon: '👥' },
+        ]
+      : []),
     {
       to: '/tickets',
       label: role === UserRole.CONTRACTOR ? 'Work Orders' : 'Tickets',
